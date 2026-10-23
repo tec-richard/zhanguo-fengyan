@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="战国烽烟">
 <title>战国烽烟 · 红夷天火</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23141612'/%3E%3Crect x='8' y='8' width='48' height='48' fill='none' stroke='%23a83226' stroke-width='3'/%3E%3Ctext x='32' y='44' font-size='36' fill='%23e8d9b8' text-anchor='middle' font-family='serif'%3E%E6%88%98%3C/text%3E%3C/svg%3E">
 <style>
@@ -840,7 +845,7 @@ body.touch #placement-bar .placement-tip{display:none}
 /* ---------------------------- 触屏控制条 ---------------------------- */
 #mobile-dock,#mobile-mask,#mobile-status,#mobile-cancel,#mobile-rule{display:none}
 body.touch #mobile-dock{
-  display:grid;grid-template-columns:repeat(8,1fr);position:fixed;left:0;right:0;bottom:0;
+  display:grid;grid-template-columns:repeat(9,1fr);position:fixed;left:0;right:0;bottom:0;
   height:calc(58px + env(safe-area-inset-bottom));padding:4px 3px calc(4px + env(safe-area-inset-bottom));
   background:linear-gradient(180deg,rgba(14,15,12,.96),rgba(7,8,6,.99));
   border-top:1px solid rgba(200,162,82,.3);z-index:85;gap:2px;
@@ -980,6 +985,43 @@ body.touch #placement-bar{top:calc(52px + env(safe-area-inset-top))}
 body.touch .menu-inner{padding-top:calc(18px + env(safe-area-inset-top))}
 body.touch #sidebar:not(.mobile-open){pointer-events:none}
 body.touch #sidebar.mobile-open{pointer-events:auto}
+
+/* iPhone full-screen guidance */
+#mobile-fullscreen-help{
+  position:fixed;inset:0;z-index:120;background:rgba(3,5,4,.78);
+  display:flex;align-items:center;justify-content:center;padding:18px;
+}
+#mobile-fullscreen-help .mfh-card{
+  width:min(360px,92vw);padding:16px;border:1px solid rgba(200,162,82,.5);
+  background:linear-gradient(160deg,#1b1b14,#0c0e0b);box-shadow:0 20px 60px rgba(0,0,0,.7);
+  color:rgba(232,217,184,.72);font-size:11px;line-height:1.7;
+}
+#mobile-fullscreen-help b{display:block;font-family:var(--font-call);font-size:18px;letter-spacing:.12em;color:var(--gold-bright);margin-bottom:8px}
+#mobile-fullscreen-help p{margin:0 0 9px}
+#mobile-fullscreen-help button{
+  display:block;width:100%;height:44px;margin-top:12px;border:1px solid rgba(200,162,82,.5);
+  background:rgba(200,162,82,.12);color:var(--gold-bright);font-family:var(--font-call);font-size:13px;
+}
+
+/* Short landscape phones: squeeze chrome, give the map more height */
+@media (orientation:landscape) and (max-height:430px){
+  body.touch #topbar{height:calc(40px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top)}
+  body.touch .res{padding:2px 3px}
+  body.touch .res-icon{width:20px;height:20px;font-size:9px}
+  body.touch .res-body b{font-size:12px}
+  body.touch .res-body small{font-size:6px}
+  body.touch #clock{display:none}
+  body.touch .skyfire-btn{height:27px;padding:0 3px}
+  body.touch .skyfire-btn .sf-icon{width:21px;height:21px;font-size:10px}
+  body.touch .icon-btn{width:27px;height:27px;font-size:11px}
+  body.touch #mobile-dock{height:calc(46px + env(safe-area-inset-bottom));padding-top:2px;padding-bottom:calc(2px + env(safe-area-inset-bottom))}
+  body.touch #mobile-dock button{height:38px;font-size:8.5px}
+  body.touch #mobile-status{bottom:calc(48px + env(safe-area-inset-bottom));font-size:6.5px;padding:2px 4px}
+  body.touch #sidebar{bottom:calc(46px + env(safe-area-inset-bottom))}
+  body.touch #toasts{top:calc(44px + env(safe-area-inset-top))}
+  body.touch #mobile-cancel{top:calc(44px + env(safe-area-inset-top));height:30px}
+  body.touch #placement-bar{top:calc(44px + env(safe-area-inset-top))}
+}
 
 </style>
 </head>
@@ -8850,6 +8892,7 @@ WG.INCOME_TICK = 0.5;
     sheetOpen: false,
     lastTapTime: 0,
     lastTapUnit: null,
+    lastTouchAction: 0,
     dock: null,
     sheet: null,
     mask: null,
@@ -8880,7 +8923,7 @@ WG.INCOME_TICK = 0.5;
     [
       ['营造', 'build'], ['练兵', 'train'], ['科技', 'tech'],
       ['攻击', 'attack'], ['停止', 'stop'], ['全选', 'select'],
-      ['回城', 'home'], ['暂停', 'pause']
+      ['回城', 'home'], ['全屏', 'fullscreen'], ['暂停', 'pause']
     ].forEach(([label, act]) => Mobile.dock.appendChild(makeButton(label, act)));
     app.appendChild(Mobile.dock);
 
@@ -8910,12 +8953,14 @@ WG.INCOME_TICK = 0.5;
     Mobile.dock.addEventListener('click', onDockClick);
     const buildGrid = $('build-grid');
     if (buildGrid) {
-      // UI 的点击处理器会先开始放置；随后收起底部面板，把地图让出来
+      // 触屏端直接接管建筑卡点击：立即收起面板并进入放置模式。
+      // 这样 iOS Safari 不会因为按钮 click 延迟/抽屉动画而错过后续地图点击。
       buildGrid.addEventListener('click', e => {
-        if (!e.target.closest('.item-btn')) return;
-        setTimeout(() => {
-          if (Mobile.game && Mobile.game.placement) closeSheet();
-        }, 0);
+        const btn = e.target.closest('.item-btn');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        pickBuilding(btn.dataset.type);
       }, true);
     }
 
@@ -8923,6 +8968,71 @@ WG.INCOME_TICK = 0.5;
     if (foot) foot.textContent = '触屏版 · 建议横屏游玩 · 点击选择国家';
 
     bindTouch();
+  }
+
+  function pickBuilding(type) {
+    const g = Mobile.game;
+    if (!g || !type) return;
+    if (g.placement && g.placement.type === type) {
+      closeSheet();
+      return;
+    }
+    g.startPlacement(type);
+    if (g.placement && g.placement.type === type) {
+      closeSheet();
+      if (WG.UI) WG.UI.toast(`已选择${WG.BUILDING_TYPES[type].name}，点击地图空地放置`, 'good');
+      refreshCancel();
+    }
+  }
+
+  function isStandalone() {
+    return (typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches) ||
+      window.navigator.standalone === true;
+  }
+
+  function isIOS() {
+    const ua = navigator.userAgent || '';
+    return /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  function showFullscreenHelp() {
+    if (document.getElementById('mobile-fullscreen-help')) return;
+    const box = document.createElement('div');
+    box.id = 'mobile-fullscreen-help';
+    box.innerHTML = `
+      <div class="mfh-card">
+        <b>让手机全屏游玩</b>
+        <p>iPhone 浏览器不支持直接网页全屏。请点 Safari 底部的「分享」按钮，选择「添加到主屏幕」，再从我主屏幕上的「战国烽烟」图标打开。</p>
+        <p>这样会去掉地址栏和底部工具栏，横屏时视野最大。Android Chrome 可以直接点「全屏」按钮。</p>
+        <button type="button">知道了</button>
+      </div>`;
+    document.getElementById('app').appendChild(box);
+    box.querySelector('button').addEventListener('click', () => box.remove());
+    box.addEventListener('click', e => { if (e.target === box) box.remove(); });
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        return;
+      }
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        await el.requestFullscreen({ navigationUI: 'hide' });
+        return;
+      }
+      if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+        return;
+      }
+    } catch (err) {
+      // 继续走安装提示
+    }
+    if (isIOS() && !isStandalone()) showFullscreenHelp();
+    else if (WG.UI) WG.UI.toast('当前浏览器不支持网页全屏', 'warn');
   }
 
   function onDockClick(e) {
@@ -8961,6 +9071,8 @@ WG.INCOME_TICK = 0.5;
     } else if (act === 'home') {
       closeSheet();
       g.focusBase();
+    } else if (act === 'fullscreen') {
+      toggleFullscreen();
     } else if (act === 'pause') {
       WG.UI.togglePause();
     }
@@ -9047,6 +9159,12 @@ WG.INCOME_TICK = 0.5;
         if (WG.UI && WG.UI.toast) WG.UI.toast('横屏游玩视野更宽，建议旋转手机', 'warn');
       }, 700);
     }
+    if (isIOS() && !isStandalone() && !sessionStorage.getItem('iosFullscreenHint')) {
+      sessionStorage.setItem('iosFullscreenHint', '1');
+      setTimeout(() => {
+        if (WG.UI && WG.UI.toast) WG.UI.toast('想全屏：Safari 分享 → 添加到主屏幕', 'warn');
+      }, 1600);
+    }
   }
 
   function onReturnMenu() {
@@ -9107,6 +9225,7 @@ WG.INCOME_TICK = 0.5;
   function tapAt(x, y) {
     const g = Mobile.game;
     if (!g || g.paused || g.over || g.uiBlocked()) return;
+    Mobile.lastTouchAction = performance.now();
     const w = setMouse(x, y);
 
     if (g.skyFireTargeting) {
@@ -9251,6 +9370,16 @@ WG.INCOME_TICK = 0.5;
     };
     canvas.addEventListener('touchend', endTouch, { passive: false });
     canvas.addEventListener('touchcancel', () => { gesture = null; }, { passive: false });
+
+    // iOS 上偶发 touch 事件被 Safari 吞掉时的兜底：点击地图也能放置/确认天火
+    canvas.addEventListener('click', e => {
+      if (performance.now() - Mobile.lastTouchAction < 700) return;
+      const g = Mobile.game;
+      if (!g || g.paused || g.over) return;
+      if (g.placement || g.skyFireTargeting || g.attackMoveMode) {
+        tapAt(e.clientX, e.clientY);
+      }
+    }, { passive: true });
   }
 
   /* --------------------------- 生命周期 --------------------------- */
