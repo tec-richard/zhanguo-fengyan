@@ -1023,6 +1023,32 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
   body.touch #placement-bar{top:calc(44px + env(safe-area-inset-top))}
 }
 
+/* iPhone fallback: move the map, then place at the centre */
+#mobile-place-confirm{
+  display:none;position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(70px + env(safe-area-inset-bottom));z-index:95;
+  height:38px;padding:0 18px;border:1px solid rgba(200,162,82,.65);
+  background:rgba(56,45,24,.94);color:#f0dfb9;font-family:var(--font-call);
+  font-size:13px;letter-spacing:.12em;border-radius:2px;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);
+}
+#mobile-place-confirm.show{display:block}
+#mobile-place-confirm:active{background:rgba(200,162,82,.3)}
+#mobile-place-crosshair{
+  display:none;position:fixed;left:50%;top:50%;width:34px;height:34px;
+  transform:translate(-50%,-50%);z-index:60;pointer-events:none;
+  border:1px solid rgba(231,197,121,.55);border-radius:50%;
+}
+#mobile-place-crosshair.show{display:block}
+#mobile-place-crosshair::before,#mobile-place-crosshair::after{
+  content:"";position:absolute;background:rgba(231,197,121,.7);
+}
+#mobile-place-crosshair::before{left:50%;top:-8px;bottom:-8px;width:1px}
+#mobile-place-crosshair::after{top:50%;left:-8px;right:-8px;height:1px}
+@media (orientation:landscape) and (max-height:430px){
+  #mobile-place-confirm{bottom:calc(54px + env(safe-area-inset-bottom));height:34px;font-size:11px}
+}
+
 </style>
 </head>
 <body>
@@ -8898,6 +8924,8 @@ WG.INCOME_TICK = 0.5;
     mask: null,
     status: null,
     cancel: null,
+    placeBtn: null,
+    crosshair: null,
     hudTick: 0
   };
 
@@ -8938,6 +8966,17 @@ WG.INCOME_TICK = 0.5;
     Mobile.cancel.textContent = '取消';
     Mobile.cancel.addEventListener('click', cancelMode);
     app.appendChild(Mobile.cancel);
+
+    Mobile.crosshair = document.createElement('div');
+    Mobile.crosshair.id = 'mobile-place-crosshair';
+    app.appendChild(Mobile.crosshair);
+
+    Mobile.placeBtn = document.createElement('button');
+    Mobile.placeBtn.id = 'mobile-place-confirm';
+    Mobile.placeBtn.type = 'button';
+    Mobile.placeBtn.textContent = '在此建造';
+    Mobile.placeBtn.addEventListener('click', placeAtCenter);
+    app.appendChild(Mobile.placeBtn);
 
     Mobile.sheet = $('sidebar');
     if (Mobile.sheet && !$('side-close')) {
@@ -8980,7 +9019,7 @@ WG.INCOME_TICK = 0.5;
     g.startPlacement(type);
     if (g.placement && g.placement.type === type) {
       closeSheet();
-      if (WG.UI) WG.UI.toast(`已选择${WG.BUILDING_TYPES[type].name}，点击地图空地放置`, 'good');
+      if (WG.UI) WG.UI.toast(`已选择${WG.BUILDING_TYPES[type].name}，点击地图空地放置；也可移动地图后点「在此建造」`, 'good');
       refreshCancel();
     }
   }
@@ -9013,6 +9052,10 @@ WG.INCOME_TICK = 0.5;
   }
 
   async function toggleFullscreen() {
+    if (isIOS() && !isStandalone()) {
+      showFullscreenHelp();
+      return;
+    }
     try {
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         if (document.exitFullscreen) await document.exitFullscreen();
@@ -9109,6 +9152,17 @@ WG.INCOME_TICK = 0.5;
     refreshStatus();
   }
 
+  function placeAtCenter() {
+    const g = Mobile.game;
+    if (!g || !g.placement) return;
+    const x = window.innerWidth / 2;
+    const y = window.innerHeight / 2;
+    setMouse(x, y);
+    g.tryPlace();
+    refreshCancel();
+    refreshStatus();
+  }
+
   function refreshCancel() {
     if (!Mobile.cancel) return;
     const g = Mobile.game;
@@ -9117,6 +9171,9 @@ WG.INCOME_TICK = 0.5;
     if (show) {
       Mobile.cancel.textContent = g.placement ? '取消营造' : g.skyFireTargeting ? '取消天火' : '取消攻击';
     }
+    const placing = !!g && !g.over && !!g.placement && isIOS();
+    if (Mobile.placeBtn) Mobile.placeBtn.classList.toggle('show', placing);
+    if (Mobile.crosshair) Mobile.crosshair.classList.toggle('show', placing);
     if (Mobile.dock) {
       const attack = Mobile.dock.querySelector('[data-act="attack"]');
       if (attack) attack.classList.toggle('active', !!(g && g.attackMoveMode));
@@ -9173,6 +9230,8 @@ WG.INCOME_TICK = 0.5;
     if (Mobile.dock) Mobile.dock.classList.add('hidden');
     if (Mobile.status) Mobile.status.classList.add('hidden');
     if (Mobile.cancel) Mobile.cancel.classList.remove('show');
+    if (Mobile.placeBtn) Mobile.placeBtn.classList.remove('show');
+    if (Mobile.crosshair) Mobile.crosshair.classList.remove('show');
   }
 
   function onEnding() {
@@ -9180,6 +9239,8 @@ WG.INCOME_TICK = 0.5;
     if (Mobile.dock) Mobile.dock.classList.add('hidden');
     if (Mobile.status) Mobile.status.classList.add('hidden');
     if (Mobile.cancel) Mobile.cancel.classList.remove('show');
+    if (Mobile.placeBtn) Mobile.placeBtn.classList.remove('show');
+    if (Mobile.crosshair) Mobile.crosshair.classList.remove('show');
   }
 
   /* --------------------------- 触屏手势 --------------------------- */
