@@ -3597,212 +3597,106 @@ WG.INCOME_TICK = 0.5;
   }
 
   function drawCavalry(ctx, u, time) {
-    const gallop = u.moving ? Math.sin(u.walkPhase * 1.55) : 0;
-    const bob = u.moving ? Math.abs(Math.sin(u.walkPhase * 1.55)) * 1.0 : 0;
-    const thrust = u.attackAnim > 0 ? u.attackAnim * 9 : 0;
-    const horse = '#ece4d5';              // 白马
-    const horseShade = '#c9bda7';
-    const mane = '#392f24';
-    const riderColor = u.color || '#b8412f';
+    const gallop = u.moving ? Math.sin(u.walkPhase * 1.4) : 0;
+    const bob = u.moving ? Math.abs(Math.sin(u.walkPhase * 1.4)) * 1.3 : 0;
+    const thrust = u.attackAnim > 0 ? u.attackAnim * 6 : 0;
+    const horseC = u.horseTone || PAL.horse;
 
     ctx.save();
     ctx.translate(0, -bob);
 
-    // 马尾：从臀部向后下方飘
-    ctx.strokeStyle = mane;
-    ctx.lineWidth = 2.4;
-    ctx.lineCap = 'round';
+    // 马尾
+    ctx.strokeStyle = PAL.horseDark;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.moveTo(-14, -1);
-    ctx.quadraticCurveTo(-23, 2 + gallop * 2, -27, 10 + gallop);
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(236,224,201,.4)';
-    ctx.lineWidth = .8;
-    ctx.beginPath();
-    ctx.moveTo(-14, -2);
-    ctx.quadraticCurveTo(-21, 1 + gallop * 2, -25, 8 + gallop);
+    ctx.moveTo(-14, 0);
+    ctx.quadraticCurveTo(-21, gallop * 2, -24, 4);
     ctx.stroke();
 
-    // 四条马腿：垂直向下，前腿微抬，后腿蹬地
+    // 四条马腿
+    ctx.strokeStyle = '#4d3824';
+    ctx.lineWidth = 2.4;
     const legs = [
-      [-8, 2, -14 + gallop * 3, 17, 'far'],
-      [7, 2, 13 - gallop * 3, 18, 'far'],
-      [-10, 3, -18 - gallop * 4, 22, 'near'],
-      [8, 3, 16 + gallop * 4, 23, 'near']
+      [-11, -5, -13 + gallop * 4, -10],
+      [-11, 5, -13 - gallop * 4, 10],
+      [8, -5, 10 - gallop * 4, -10],
+      [8, 5, 10 + gallop * 4, 10]
     ];
     for (const l of legs) {
-      const far = l[4] === 'far';
-      ctx.globalAlpha = far ? .42 : 1;
-      ctx.strokeStyle = far ? '#6a5842' : '#453728';
-      ctx.lineWidth = far ? 1.5 : 2.8;
-      ctx.beginPath();
-      ctx.moveTo(l[0], l[1]);
-      ctx.quadraticCurveTo((l[0] + l[2]) / 2 + (l[2] > l[0] ? 2.5 : -2.5), (l[1] + l[3]) / 2, l[2], l[3]);
-      ctx.stroke();
-      // 蹄
-      ctx.fillStyle = '#2b2117';
-      ctx.beginPath();
-      ctx.ellipse(l[2], l[3], far ? 1.4 : 2.0, far ? .9 : 1.3, 0, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.moveTo(l[0], l[1]); ctx.lineTo(l[2], l[3]); ctx.stroke();
     }
-    ctx.globalAlpha = 1;
 
-    // 马身：胸、腹、臀分开，避免椭圆“龟壳”感
-    ctx.fillStyle = horse;
+    // 马身
+    ctx.fillStyle = horseC;
+    ctx.beginPath(); ctx.ellipse(0, 0, 15, 7.8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = U.shade(horseC, .1);
+    ctx.beginPath(); ctx.ellipse(1, -1.6, 11, 4.6, 0, 0, Math.PI * 2); ctx.fill();
+    // 颈与头
+    ctx.fillStyle = horseC;
     ctx.beginPath();
-    ctx.moveTo(-16, -2.6);
-    ctx.quadraticCurveTo(-20, -5.4, -15, -6.4);
-    ctx.quadraticCurveTo(-5, -7.4, 5, -5.8);
-    ctx.quadraticCurveTo(12, -4.8, 16, -1.6);
-    ctx.lineTo(15, 2.8);
-    ctx.quadraticCurveTo(7, 5.2, -2, 4.7);
-    ctx.quadraticCurveTo(-11, 4.4, -16, 1.2);
+    ctx.moveTo(10, -4.5);
+    ctx.quadraticCurveTo(17, -7, 21, -4);
+    ctx.lineTo(23, -1);
+    ctx.quadraticCurveTo(18, 1.5, 14, 3);
     ctx.closePath();
     ctx.fill();
-    // 臀部与肩部
-    ctx.fillStyle = horseShade;
-    ctx.beginPath(); ctx.ellipse(-12.5, -1, 5.0, 5.0, -.15, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(10, -1, 4.0, 4.4, .12, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = horse;
-    ctx.beginPath(); ctx.ellipse(-11.5, -2.1, 4.0, 3.4, -.15, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(10, -1.9, 3.0, 3.0, .12, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = 'rgba(47,37,26,.58)';
-    ctx.lineWidth = 1.15;
+    ctx.beginPath(); ctx.ellipse(22, -2.2, 4.8, 2.9, -.15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#3f2d1d';
+    ctx.beginPath(); ctx.ellipse(25.2, -2.6, 1.7, 1.3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#e3d3ad';
+    ctx.beginPath(); ctx.arc(23.4, -3.2, .7, 0, Math.PI * 2); ctx.fill();
+    // 马鬃
+    ctx.strokeStyle = '#4b3320';
+    ctx.lineWidth = 1.3;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(13 + i * 1.7, -4.8);
+      ctx.lineTo(11 + i * 1.7, -1.8);
+      ctx.stroke();
+    }
+
+    // 鞍毯
+    ctx.fillStyle = u.color;
     ctx.beginPath();
-    ctx.moveTo(-16, -2.6);
-    ctx.quadraticCurveTo(-20, -5.4, -15, -6.4);
-    ctx.quadraticCurveTo(-5, -7.4, 5, -5.8);
-    ctx.quadraticCurveTo(12, -4.8, 16, -1.6);
-    ctx.lineTo(15, 2.8);
-    ctx.quadraticCurveTo(7, 5.2, -2, 4.7);
-    ctx.quadraticCurveTo(-11, 4.4, -16, 1.2);
-    ctx.closePath();
+    ctx.ellipse(-1, 0, 7.4, 7.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = PAL.gold;
+    ctx.lineWidth = .9;
+    ctx.beginPath();
+    ctx.ellipse(-1, 0, 6, 6, 0, 0, Math.PI * 2);
     ctx.stroke();
-
-    // 脖颈：向前上方扬起
-    ctx.fillStyle = horse;
-    ctx.beginPath();
-    ctx.moveTo(9, -3.0);
-    ctx.quadraticCurveTo(13, -14.5, 21, -17);
-    ctx.lineTo(25, -13.5);
-    ctx.quadraticCurveTo(20, -7, 19, -1.5);
-    ctx.quadraticCurveTo(14, 1, 10, 1.5);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = horseShade;
-    ctx.beginPath();
-    ctx.moveTo(10, -3.5);
-    ctx.quadraticCurveTo(14, -13, 21, -15.5);
-    ctx.lineTo(22, -12);
-    ctx.quadraticCurveTo(16, -8, 13, -1.5);
-    ctx.closePath();
-    ctx.fill();
-    // 马头
-    ctx.fillStyle = horse;
-    ctx.beginPath();
-    ctx.ellipse(26.5, -15.8, 6.8, 3.9, .28, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#f7f0e1';
-    ctx.beginPath();
-    ctx.ellipse(31.0, -15.0, 3.2, 1.9, .2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#2a2118';
-    ctx.beginPath();
-    ctx.ellipse(32.7, -14.9, 1.6, 1.05, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#1e1a15';
-    ctx.beginPath();
-    ctx.arc(26.0, -17.6, .8, 0, Math.PI * 2);
-    ctx.fill();
-    // 耳朵
-    ctx.fillStyle = horse;
-    ctx.beginPath();
-    ctx.moveTo(21.8, -17.4); ctx.lineTo(21.2, -21.4); ctx.lineTo(23.6, -18.2); ctx.closePath(); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(24.1, -17.2); ctx.lineTo(24.2, -20.8); ctx.lineTo(26, -17.6); ctx.closePath(); ctx.fill();
-    // 鬃毛
-    ctx.strokeStyle = mane;
-    ctx.lineWidth = 1.7;
-    for (let i = 0; i < 5; i++) {
-      ctx.beginPath();
-      ctx.moveTo(13 + i * 1.7, -13.0 + i * 3.4);
-      ctx.quadraticCurveTo(11 + i * 1.7, -9.0 + i * 3.4, 9.2 + i * 1.7, -5.2 + i * 3.4);
-      ctx.stroke();
-    }
-
-    // 小鞍毯 + 金边
-    // 窄皮革马鞍，只保留一点国家色，不遮住马身
-    ctx.fillStyle = '#4a3422';
-    ctx.beginPath();
-    ctx.ellipse(-1, -2.7, 5.6, 2.9, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = riderColor;
-    ctx.globalAlpha = .8;
-    ctx.beginPath(); ctx.moveTo(-5, -4.8); ctx.lineTo(-1, -5.7); ctx.lineTo(2, -3.8); ctx.lineTo(-2, -2.8); ctx.closePath(); ctx.fill();
-    ctx.globalAlpha = 1;
-    // 马镫
-    ctx.strokeStyle = '#b08a4c';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(-4, 4.5, 1.4, 0, Math.PI * 2); ctx.stroke();
 
     // 骑手
     ctx.fillStyle = '#564c3b';
-    ctx.beginPath(); ctx.ellipse(-1.5, -8.5, 4.0, 4.8, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#6b5a42';
-    ctx.beginPath(); ctx.ellipse(-2, -8.2, 3.2, 3.7, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = riderColor;
-    ctx.globalAlpha = .55; ctx.fillRect(-4.2, -8.8, 1.8, 4.8); ctx.globalAlpha = 1;
-    // 甲片与披膊
-    ctx.fillStyle = '#78684e';
-    ctx.beginPath(); ctx.ellipse(-4.5, -9.3, 2.2, 1.5, -.4, 0, Math.PI * 2); ctx.fill();
-    // 头
+    ctx.beginPath(); ctx.ellipse(-1, 0, 5.2, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = u.color;
+    ctx.globalAlpha = .8;
+    ctx.beginPath(); ctx.ellipse(-1.5, 0, 4, 4.2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
     ctx.fillStyle = PAL.skin;
-    ctx.beginPath(); ctx.arc(1.4, -12.0, 2.7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(2.6, 0, 2.8, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#77694f';
-    ctx.beginPath(); ctx.arc(1.4, -12.2, 3.0, Math.PI * .7, Math.PI * 1.5); ctx.fill();
-    // 红缨盔顶
-    ctx.strokeStyle = '#c23b2d';
-    ctx.lineWidth = 1.7;
+    ctx.beginPath(); ctx.arc(2.6, 0, 3.1, Math.PI * .7, Math.PI * 1.5); ctx.fill();
+    ctx.fillStyle = u.color;
     ctx.beginPath();
-    ctx.moveTo(-.4, -14.7);
-    ctx.quadraticCurveTo(-4, -17.2 + Math.sin(time * 5) * .7, -6.8, -14.1);
-    ctx.stroke();
-    ctx.fillStyle = '#c23b2d';
-    ctx.beginPath();
-    ctx.moveTo(-.6, -14.8); ctx.lineTo(-2.9, -16.9); ctx.lineTo(-3, -14.3); ctx.closePath(); ctx.fill();
+    ctx.moveTo(.2, 0); ctx.lineTo(-3.2, -1.5); ctx.lineTo(-3, 1.8); ctx.closePath(); ctx.fill();
 
-    // 红缨长枪
+    // 长矛
     ctx.save();
-    ctx.translate(3, -13.0);
-    ctx.rotate(-.42);
+    ctx.translate(1, -4.5);
+    ctx.rotate(-.08);
     ctx.strokeStyle = '#6f5132';
-    ctx.lineWidth = 1.9;
-    ctx.beginPath();
-    ctx.moveTo(-9, 3);
-    ctx.lineTo(34 + thrust, -4 + thrust * .1);
-    ctx.stroke();
-    ctx.strokeStyle = '#c7b58c';
-    ctx.lineWidth = .7;
-    ctx.beginPath(); ctx.moveTo(-7, 2.4); ctx.lineTo(31 + thrust, -4.1); ctx.stroke();
+    ctx.lineWidth = 1.7;
+    ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(39 + thrust, 0); ctx.stroke();
     ctx.fillStyle = PAL.metalLight;
     ctx.beginPath();
-    ctx.moveTo(37 + thrust, -4.5);
-    ctx.lineTo(32 + thrust, -7.1);
-    ctx.lineTo(31 + thrust, -2.4);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#c23b2d';
-    for (let i = 0; i < 3; i++) {
-      const sway = Math.sin(time * 5 + i * 1.3) * 1.6;
-      ctx.beginPath();
-      ctx.moveTo(31 + thrust, -4.2);
-      ctx.quadraticCurveTo(25 + i * 2, -8 - i * 1.8 + sway, 20 + i * 2.2, -6 - i * 2.2 + sway);
-      ctx.lineTo(24 + i * 2, -3.4 - i * .8);
-      ctx.closePath();
-      ctx.fill();
-    }
+    ctx.moveTo(38 + thrust, 0); ctx.lineTo(46 + thrust, -2); ctx.lineTo(49 + thrust, 0); ctx.lineTo(46 + thrust, 2);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = u.color;
+    ctx.beginPath();
+    ctx.moveTo(36 + thrust, -3.2); ctx.lineTo(41 + thrust, 0); ctx.lineTo(36 + thrust, 3.2);
+    ctx.closePath(); ctx.fill();
     ctx.restore();
-
     ctx.restore();
   }
 
