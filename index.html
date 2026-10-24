@@ -790,6 +790,13 @@ kbd{
 .opponents-row button:hover{border-color:var(--line-strong)}
 .opponents-row button.active{border-color:var(--gold);background:rgba(66,55,32,.5);color:var(--gold-bright)}
 
+.mini-btn{
+  display:block;margin-top:7px;height:24px;padding:0 10px;border:1px solid rgba(200,162,82,.5);
+  background:rgba(200,162,82,.12);color:var(--gold-bright);font-family:var(--font-call);
+  font-size:11px;letter-spacing:.08em;
+}
+.mini-btn:hover{background:rgba(200,162,82,.22)}
+
 /* ============================================================
    战国烽烟 · 手机触屏界面
    只在 body.touch 下启用，桌面端完全不受影响
@@ -1067,6 +1074,20 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
   width:100%;height:100%;
 }
 
+#mobile-garrison{
+  display:none;position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(70px + env(safe-area-inset-bottom));z-index:96;
+  height:38px;padding:0 16px;border:1px solid rgba(200,162,82,.65);
+  background:rgba(56,45,24,.94);color:#f0dfb9;font-family:var(--font-call);
+  font-size:13px;letter-spacing:.1em;border-radius:2px;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);
+}
+#mobile-garrison.show{display:block}
+#mobile-garrison:active{background:rgba(200,162,82,.3)}
+@media (orientation:landscape) and (max-height:430px){
+  #mobile-garrison{bottom:calc(54px + env(safe-area-inset-bottom));height:34px;font-size:11px}
+}
+
 </style>
 </head>
 <body>
@@ -1247,9 +1268,10 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
           <h3>经济</h3>
           <p><b>农田</b>产粮，<b>铜矿场</b>产铜（须建在铜矿脉上），<b>城池</b>与<b>村庄</b>也会提供赋税。占领中立村庄可持续获得资源与视野。</p>
           <h3>营造</h3>
-          <p>在右侧「营造」页选择建筑，左键放置，右键取消。建筑需建在已探索的平原或沙地上。<b>同一时间只能营造一座建筑</b>，且必须按阶梯解锁：兵营 → 铜矿场 / 箭塔 / 靶场 → 书院 / 马厩 → 火炮坊。民居提供人口上限，书院研究科技。舆图涵盖关中、江汉、齐鲁、燕山、太行、河内与淮泗，黄河、长江、淮水与东海会阻挡行军，需从桥梁通过。</p>
+          <p>在右侧「营造」页选择建筑，左键放置，右键取消。建筑需建在已探索的平原或沙地上。<b>同一时间只能营造一座建筑</b>，且必须按阶梯解锁：兵营 → 铜矿场 / 箭塔 / 靶场 → 书院 / 马厩 / 敌楼 → 火炮坊。民居提供人口上限，书院研究科技。舆图涵盖关中、江汉、齐鲁、燕山、太行、河内与淮泗，黄河、长江、淮水与东海会阻挡行军，需从桥梁通过。</p>
           <h3>练兵</h3>
           <p>兵营出步兵、枪兵；靶场出弩兵；马厩出骑兵；火炮坊出红夷大炮。每座生产建筑可独立排队。</p>
+          <p><b>敌楼</b>：靶场完成后可营造。选中弩兵或火炮，右键点击敌楼即可进驻，最多 4 人；守军从敌楼射击时射程增加 80～90，点击「放出守军」出塔。</p>
           <p><b>天火</b>：火炮坊建成后，点击顶栏「天火」，再左键选择地点，可呼叫十轮红夷天火齐射。冷却 120 秒。</p>
         </section>
         <section>
@@ -1273,6 +1295,7 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
             <div><kbd>滚轮</kbd><span>缩放视野</span></div>
             <div><kbd>长按部队</kbd><span>选中全部同类型</span></div>
             <div><kbd>长按空地拖动</kbd><span>画圈/方框框选</span></div>
+            <div><kbd>右键敌楼</kbd><span>弩兵/火炮进驻</span></div>
             <div><kbd>1-9</kbd><span>编队 / 呼出</span></div>
             <div><kbd>Ctrl+1-9</kbd><span>设置编队</span></div>
             <div><kbd>F</kbd><span>回到城池</span></div>
@@ -1282,7 +1305,7 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
         <section class="help-tips">
           <h3>军争要诀</h3>
           <p>· 山丘会提升远程单位射程，河流只能从桥梁通过，湖泊与东海不可通行，沙漠与森林会拖慢行军。</p>
-          <p>· 我方部队的自动警戒半径为 220（弩兵射程），不会主动追出过远；主动下达攻击命令则不受此限。</p>
+          <p>· 弩兵和火炮会自动攻击自身射程内的敌人；步兵与骑兵的自动警戒半径为 250，略大于弩兵射程，被远程压制时会主动还击；主动下达攻击命令不受此限。</p>
           <p>· 红夷大炮有最小射程，不要让它被敌人贴脸。</p>
           <p>· 箭塔与城池会自动射击靠近的敌人，可作为防线支点。</p>
           <p>· 摧毁敌方<b>城池</b>即可获胜；自己的城池被毁则败北。</p>
@@ -1545,7 +1568,7 @@ WG.UNIT_TYPES = {
   infantry: {
     id: 'infantry', name: '步兵', full: '持盾步兵', role: '近战 · 结阵',
     hp: 125, armor: 2, damage: 11, range: 25, cooldown: 1.0, speed: 62,
-    vision: 235, radius: 9, pop: 1, buildTime: 8,
+    vision: 260, radius: 9, pop: 1, buildTime: 8,
     cost: { food: 60, copper: 35 }, hotkey: 'Q', iconScale: 1,
     desc: '身披札甲、手持环首刀与木盾的步卒。造价低廉，适合结阵推进、占领村庄。',
     strong: '弩兵', weak: '骑兵',
@@ -1554,7 +1577,7 @@ WG.UNIT_TYPES = {
   spear: {
     id: 'spear', name: '枪兵', full: '长枪兵', role: '近战 · 反骑',
     hp: 150, armor: 3, damage: 15, range: 36, cooldown: 1.2, speed: 56,
-    vision: 235, radius: 10, pop: 1, buildTime: 10,
+    vision: 260, radius: 10, pop: 1, buildTime: 10,
     cost: { food: 70, copper: 45 }, hotkey: 'W', iconScale: 1,
     desc: '手持丈八长枪，结阵如林。对骑兵造成 2.4 倍伤害，是阻挡铁骑的中坚。',
     strong: '骑兵', weak: '弩兵',
@@ -1582,7 +1605,7 @@ WG.UNIT_TYPES = {
   cannon: {
     id: 'cannon', name: '红夷大炮', full: '墨家红夷炮', role: '攻城 · 范围',
     hp: 240, armor: 2, damage: 60, range: 360, minRange: 90, cooldown: 4.2, speed: 34,
-    vision: 330, radius: 15, pop: 4, buildTime: 22,
+    vision: 385, radius: 15, pop: 4, buildTime: 22,
     cost: { food: 180, copper: 240 }, hotkey: 'T', iconScale: 1,
     desc: '墨家依照西域炮图铸成的青铜巨炮。超远射程、范围杀伤，对建筑造成 2.5 倍伤害；但有最小射程，且行动迟缓。',
     strong: '建筑 / 密集阵型', weak: '骑兵',
@@ -1642,6 +1665,15 @@ WG.BUILDING_TYPES = {
     desc: '需先完成兵营。高耸的望楼，自动射击靠近的敌军，可扼守渡口与要道。',
     buildable: true
   },
+  bastion: {
+    id: 'bastion', name: '敌楼', full: '长城敌楼', role: '防御 · 驻军',
+    hp: 1200, radius: 31, vision: 480, buildTime: 34,
+    cost: { food: 130, copper: 260 }, hotkey: 'P', tier: 3, requires: ['range'], maxCount: 3,
+    garrisonCapacity: 4,
+    attack: { damage: 20, range: 250, cooldown: 1.6, projectile: 'bolt' },
+    desc: '需先完成靶场。可容纳 4 名弩兵或火炮；守军从敌楼射击时射程大幅提升。',
+    buildable: true
+  },
   range: {
     id: 'range', name: '靶场', full: '弩兵靶场', role: '生产',
     hp: 850, radius: 32, vision: 175, buildTime: 28,
@@ -1674,7 +1706,7 @@ WG.BUILDING_TYPES = {
     buildable: true
   }
 };
-WG.BUILD_ORDER = ['house', 'farm', 'barracks', 'mine', 'tower', 'range', 'academy', 'stable', 'foundry'];
+WG.BUILD_ORDER = ['house', 'farm', 'barracks', 'mine', 'tower', 'range', 'academy', 'stable', 'bastion', 'foundry'];
 WG.BUILDING_TIERS = { 1: '一阶', 2: '二阶', 3: '三阶', 4: '四阶' };
 
 WG.TECH_TYPES = {
@@ -1740,7 +1772,8 @@ WG.GAME = {
   zoomMax: 1.45,
   fogUpdate: 0.11,
   maxUnitsSoft: 220,
-  autoEngageRange: 220
+  autoEngageRange: 220,
+  infantryAutoRange: 250
 };
 
 WG.INCOME_TICK = 0.5;
@@ -4353,6 +4386,68 @@ WG.INCOME_TICK = 0.5;
     drawFlag(ctx, 14, -31, c, time, .55, 11);
   }
 
+  function drawBastion(ctx, b, time) {
+    const c = b.color;
+    drawShadow(ctx, 38, 22);
+    // 长城墙体
+    ctx.fillStyle = '#6b6453';
+    ctx.fillRect(-38, 2, 76, 18);
+    ctx.fillStyle = '#807866';
+    ctx.fillRect(-38, 0, 76, 7);
+    ctx.strokeStyle = 'rgba(44,39,30,.55)';
+    ctx.lineWidth = .8;
+    for (let x = -34; x < 36; x += 11) {
+      ctx.beginPath(); ctx.moveTo(x, 7); ctx.lineTo(x, 18); ctx.stroke();
+    }
+    for (let x = -36; x < 34; x += 9) {
+      ctx.fillStyle = '#5d5646';
+      ctx.fillRect(x, -5, 5, 6);
+    }
+    // 主敌楼
+    ctx.fillStyle = '#7a705a';
+    ctx.beginPath();
+    ctx.moveTo(-17, 2); ctx.lineTo(-14, -34); ctx.lineTo(14, -34); ctx.lineTo(17, 2);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#958a70';
+    ctx.beginPath();
+    ctx.moveTo(-14, 0); ctx.lineTo(-12, -31); ctx.lineTo(9, -31); ctx.lineTo(10, 0);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(48,42,31,.6)';
+    ctx.lineWidth = 1;
+    for (let y = -28; y < 0; y += 7) {
+      ctx.beginPath(); ctx.moveTo(-14, y); ctx.lineTo(14, y + 1); ctx.stroke();
+    }
+    // 箭窗
+    ctx.fillStyle = '#2e2a20';
+    for (const [x, y] of [[-5, -23], [4, -23], [-5, -13], [4, -13]]) {
+      ctx.fillRect(x, y, 2.4, 6);
+    }
+    // 垛口
+    ctx.fillStyle = '#5e5645';
+    for (let i = 0; i < 5; i++) ctx.fillRect(-17 + i * 7.5, -38, 5, 6);
+    // 门洞
+    ctx.fillStyle = '#342c20';
+    ctx.beginPath();
+    ctx.moveTo(-5, 2); ctx.lineTo(-5, -7); ctx.quadraticCurveTo(0, -12, 5, -7); ctx.lineTo(5, 2);
+    ctx.closePath(); ctx.fill();
+    // 望楼屋顶
+    ctx.fillStyle = '#454c40';
+    ctx.beginPath();
+    ctx.moveTo(-20, -37); ctx.lineTo(0, -48); ctx.lineTo(20, -37); ctx.lineTo(0, -31); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = PAL.gold; ctx.lineWidth = .8;
+    ctx.beginPath(); ctx.moveTo(-18, -38); ctx.lineTo(18, -38); ctx.stroke();
+    // 两面关旗
+    drawFlag(ctx, -27, -34, c, time, .72, 13);
+    drawFlag(ctx, 27, -34, c, time, .72, 14);
+    // 守军弓弩示意
+    ctx.strokeStyle = 'rgba(224,205,158,.7)';
+    ctx.lineWidth = .9;
+    for (let i = 0; i < 2; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-9 + i * 18, -26); ctx.lineTo(-4 + i * 18, -30); ctx.stroke();
+    }
+  }
+
   function drawVillage(ctx, v, time) {
     const c = v.ownerColor || '#8d856f';
     ctx.save();
@@ -4417,6 +4512,7 @@ WG.INCOME_TICK = 0.5;
       case 'house': drawHouse(ctx, b, time); break;
       case 'mine': drawMine(ctx, b, time); break;
       case 'tower': drawTower(ctx, b, time); break;
+      case 'bastion': drawBastion(ctx, b, time); break;
     }
     ctx.globalAlpha = 1;
     if (b.constructing) drawScaffold(ctx, b, b.buildProgress || 0);
@@ -4513,6 +4609,7 @@ WG.INCOME_TICK = 0.5;
       let sc;
       if (id === 'hq') sc = size / 160;
       else if (id === 'tower') sc = size / 92;
+      else if (id === 'bastion') sc = size / 118;
       else if (id === 'farm' || id === 'stable' || id === 'foundry') sc = size / 108;
       else if (id === 'house') sc = size / 90;
       else sc = size / 102;
@@ -4980,6 +5077,7 @@ WG.INCOME_TICK = 0.5;
         constructing: !complete, buildProgress: complete ? 1 : 0,
         buildTime: def.buildTime || 1,
         queue: [], rally: null, cooldownLeft: 0,
+        garrison: [], garrisonCapacity: def.garrisonCapacity || 0,
         attack: def.attack ? Object.assign({}, def.attack) : null,
         income: stats.income, selected: false,
         seed: this.rng.float(0, 100), lastAttackAlert: -99,
@@ -5808,8 +5906,100 @@ WG.INCOME_TICK = 0.5;
       return units.length;
     }
 
+    garrisonUnits(b, units) {
+      if (!b || b.dead || b.type !== 'bastion') return 0;
+      const capacity = b.garrisonCapacity || 4;
+      const room = capacity - b.garrison.length;
+      if (room <= 0) {
+        if (b.team === 0) this.toast('敌楼已满', 'warn');
+        return 0;
+      }
+      const eligible = (units || []).filter(u => u && !u.dead && u.team === b.team &&
+        (u.type === 'crossbow' || u.type === 'cannon'));
+      if (!eligible.length) {
+        if (b.team === 0) this.toast('只有弩兵和火炮可以进入敌楼', 'warn');
+        return 0;
+      }
+      const take = eligible.slice(0, room);
+      for (const u of take) {
+        const idx = this.unitList.indexOf(u);
+        if (idx >= 0) this.unitList.splice(idx, 1);
+        u.garrisoned = true;
+        u.target = null;
+        u.path = [];
+        u.pathIndex = 0;
+        u.dest = null;
+        u.moving = false;
+        b.garrison.push(u);
+      }
+      this.selection.units = this.selection.units.filter(u => !u.garrisoned);
+      this.updatePlayerDerived();
+      this.updateVision(true);
+      if (b.team === 0) this.selectBuilding(b);
+      if (WG.UI) {
+        WG.UI.refreshSelection();
+        WG.UI.refreshBuildings();
+      }
+      if (b.team === 0) {
+        this.toast(`已进驻敌楼 ${take.length} 人 · 射程提升`, 'good');
+        if (WG.Audio) WG.Audio.play('upgrade', .7);
+      }
+      return take.length;
+    }
+
+    garrisonSelected(b) {
+      const units = this.getSelectedUnits();
+      return this.garrisonUnits(b, units);
+    }
+
+    ungarrison(b) {
+      if (!b || !b.garrison || !b.garrison.length) return 0;
+      const units = b.garrison.slice();
+      b.garrison = [];
+      for (const u of units) {
+        const spot = this.findFreeSpot(b.x + this.rng.float(-40, 40), b.y + b.radius + 28);
+        u.x = spot.x; u.y = spot.y;
+        u.garrisoned = false;
+        u.task = 'idle';
+        u.target = null;
+        u.path = [];
+        u.pathIndex = 0;
+        u.dest = null;
+        u.moving = false;
+        this.unitList.push(u);
+      }
+      this.updatePlayerDerived();
+      this.updateVision(true);
+      if (WG.UI) {
+        WG.UI.refreshSelection();
+        WG.UI.refreshBuildings();
+      }
+      if (b.team === 0) this.toast(`敌楼守军已出塔 ${units.length} 人`, 'good');
+      return units.length;
+    }
+
+    towerCombatStats(b) {
+      const base = b.attack || { range: 250, damage: 20, cooldown: 1.6, projectile: 'bolt' };
+      let range = base.range, damage = base.damage, cooldown = base.cooldown;
+      let best = null;
+      for (const u of (b.garrison || [])) {
+        const bonus = u.type === 'cannon' ? 90 : 80;
+        const r = this.effectiveRange(u) + bonus;
+        if (r > range) { range = r; best = u; }
+        damage = Math.max(damage, (u.damage || 10) * .9);
+        cooldown = Math.min(cooldown, u.cooldown || 2);
+      }
+      return { range, damage, cooldown, best };
+    }
+
     issueOrder(x, y, attackMove) {
       if (this.over) return;
+      const ownBastion = this.buildingList.find(b => b.team === 0 && b.type === 'bastion' && !b.dead &&
+        U.dist(x, y, b.x, b.y) < b.radius + 18);
+      if (ownBastion && this.getSelectedUnits().length) {
+        this.garrisonSelected(ownBastion);
+        return;
+      }
       if (this.selection.building) {
         this.setRally(x, y);
         return;
@@ -6124,7 +6314,7 @@ WG.INCOME_TICK = 0.5;
       const codeLetter = e.code && e.code.indexOf('Key') === 0 ? e.code.slice(3).toLowerCase() : '';
       this.keys[k] = true;
       if (e.code === 'Space') this.keys[' '] = true;
-      const buildKeys = { j: 'house', n: 'farm', b: 'barracks', t: 'mine', l: 'tower', g: 'range', k: 'academy', v: 'stable', y: 'foundry' };
+      const buildKeys = { j: 'house', n: 'farm', b: 'barracks', t: 'mine', l: 'tower', g: 'range', k: 'academy', v: 'stable', p: 'bastion', y: 'foundry' };
       if (e.altKey && buildKeys[codeLetter]) {
         // 建筑快捷键：Alt + 字母
         e.preventDefault();
@@ -6278,14 +6468,20 @@ WG.INCOME_TICK = 0.5;
         }
         // 防御建筑
         if (b.attack) {
+          const tower = b.type === 'bastion' ? this.towerCombatStats(b) : null;
+          const range = tower ? tower.range : b.attack.range;
           b.cooldownLeft -= dt;
           if (b.cooldownLeft <= 0) {
-            const target = this.findEnemyNearForBuilding(b);
+            const target = this.findEnemyNearForBuilding(b, range);
             if (target) {
               const dist = U.dist(b.x, b.y, target.x, target.y) - target.radius;
-              if (dist <= b.attack.range) {
-                this.fireAtBuilding(b, target);
-                b.cooldownLeft = b.attack.cooldown;
+              if (dist <= range) {
+                if (tower && tower.best && tower.best.type === 'cannon') {
+                  this.fireCannon({ x: b.x, y: b.y, team: b.team, kind: 'unit', type: 'cannon', buildingMul: 1, damage: tower.damage }, target, tower.damage);
+                } else {
+                  this.fireAtBuilding(b, target, tower ? tower.damage : b.attack.damage);
+                }
+                b.cooldownLeft = tower ? tower.cooldown : b.attack.cooldown;
               }
             }
           }
@@ -6317,22 +6513,23 @@ WG.INCOME_TICK = 0.5;
       return this.findFreeSpot(b.x + Math.cos(dir) * dist, b.y + Math.sin(dir) * dist);
     }
 
-    findEnemyNearForBuilding(b) {
+    findEnemyNearForBuilding(b, range) {
+      range = range || (b.attack && b.attack.range) || 250;
       let best = null, bestD = Infinity;
       for (const u of this.unitList) {
         if (u.dead || !this.areEnemies(b.team, u.team)) continue;
         if (!this.isVisible(u.x, u.y) && b.team === 0) continue;
         const d = U.dist(b.x, b.y, u.x, u.y);
-        if (d < b.attack.range + 30 && d < bestD) { bestD = d; best = u; }
+        if (d < range + 30 && d < bestD) { bestD = d; best = u; }
       }
       return best;
     }
 
-    fireAtBuilding(b, target) {
+    fireAtBuilding(b, target, damage) {
       const a = Math.atan2(target.y - b.y, target.x - b.x);
       const sx = b.x + Math.cos(a) * (b.radius * .5);
       const sy = b.y + Math.sin(a) * (b.radius * .5) - 8;
-      this.spawnProjectile('bolt', b, sx, sy, target, null);
+      this.spawnProjectile('bolt', b, sx, sy, target, { damage: damage || (b.attack && b.attack.damage) || 16 });
       this.sfx('arrow', b.x, b.y, .5);
     }
 
@@ -6361,6 +6558,7 @@ WG.INCOME_TICK = 0.5;
               if (u.team === 0 && u.task !== 'attack') {
                 u.leashX = u.x;
                 u.leashY = u.y;
+                u.leashRange = this.autoRangeForUnit(u) + 40;
               }
             }
           }
@@ -6383,7 +6581,7 @@ WG.INCOME_TICK = 0.5;
       if (!t || t.dead) { u.target = null; return; }
       // 玩家自动警戒：只在交战点附近追击，不无限追到地图另一头
       if (u.team === 0 && u.task !== 'attack' && u.leashX != null &&
-          U.dist(u.x, u.y, u.leashX, u.leashY) > 260) {
+          U.dist(u.x, u.y, u.leashX, u.leashY) > (u.leashRange || 290)) {
         u.target = null;
         u.path = [];
         u.pathIndex = 0;
@@ -6542,10 +6740,17 @@ WG.INCOME_TICK = 0.5;
       return r;
     }
 
+    autoRangeForUnit(u) {
+      if (u.type === 'crossbow' || u.type === 'cannon') {
+        return this.effectiveRange(u) + 6;
+      }
+      return WG.GAME.infantryAutoRange || 250;
+    }
+
     findTargetForUnit(u) {
-      let vision = u.task === 'hold' ? this.effectiveRange(u) + 16 : u.vision;
-      // 玩家部队的自动警戒半径统一到弩兵射程（220），避免追出过远
-      if (u.team === 0) vision = Math.min(vision, WG.GAME.autoEngageRange || 220);
+      // 弩兵/火炮按自身射程自动接敌；步兵/骑兵的警戒圈略大于弩兵射程，
+      // 这样被弩兵远程压制时会主动还击，而不是站着挨打。
+      const vision = this.autoRangeForUnit(u);
       let best = null, bestScore = Infinity;
       for (const o of this.unitList) {
         if (o.dead || !this.areEnemies(u.team, o.team)) continue;
@@ -7730,6 +7935,7 @@ WG.INCOME_TICK = 0.5;
       const barracks = this.countBuilding('barracks', true);
       const ranges = this.countBuilding('range', true);
       const stables = this.countBuilding('stable', true);
+      const bastions = this.countBuilding('bastion', true);
       const foundries = this.countBuilding('foundry', true);
       const academies = this.countBuilding('academy', true);
       const towers = this.countBuilding('tower', true);
@@ -7746,6 +7952,7 @@ WG.INCOME_TICK = 0.5;
       else if (academies < 1 && t > 52) want = 'academy';
       else if (stables < 1 && t > 60) want = 'stable';
       else if (towers < 1 && t > 70) want = 'tower';
+      else if (bastions < 1 && t > 125) want = 'bastion';
       // 四级：火炮坊
       else if (foundries < 1 && t > 155) want = 'foundry';
       else if (barracks < 2 && t > 120) want = 'barracks';
@@ -8731,14 +8938,31 @@ WG.INCOME_TICK = 0.5;
       else if (def.produces) extra = `<span>可训练 <b>${def.produces.map(t => WG.UNIT_TYPES[t].name).join('、')}</b></span>`;
       else if (b.type === 'house') extra = '<span>人口 <b>+12</b></span>';
       else if (b.type === 'tower') extra = '<span>攻击 <b>16</b> · 射程 <b>245</b></span>';
+      else if (b.type === 'bastion') {
+        const ts = this.game.towerCombatStats(b);
+        extra = `<span>驻军 <b>${(b.garrison || []).length}/${b.garrisonCapacity || 4}</b></span><span>射程 <b>${Math.round(ts.range)}</b></span><span>攻击 <b>${Math.round(ts.damage)}</b></span>`;
+      }
       let queue = '';
       if (b.queue && b.queue.length) {
         queue = `<div class="info-stats"><span>练兵队列 <b>${b.queue.length}</b></span></div>`;
       }
+      let garrison = '';
+      if (b.type === 'bastion') {
+        garrison = `<div class="info-stats"><span>右键/触屏点选：弩兵、火炮进驻</span></div>`;
+        if (b.garrison && b.garrison.length) {
+          garrison += `<button type="button" class="mini-btn" data-ungarrison="${b.id}">放出守军 (${b.garrison.length})</button>`;
+        }
+      }
       info.innerHTML = `
         <div class="info-title"><b>${def.full}</b><span>${b.constructing ? '营造中 ' + Math.round(b.buildProgress * 100) + '%' : '生命 ' + Math.round(b.hp) + '/' + b.maxHp}</span></div>
         <div class="info-desc">${def.desc}</div>
-        <div class="info-stats">${extra}${b.rally ? '<span>集结点 <b>已设置</b></span>' : ''}</div>${queue}`;
+        <div class="info-stats">${extra}${b.rally ? '<span>集结点 <b>已设置</b></span>' : ''}</div>${queue}${garrison}`;
+      const gb = info.querySelector('[data-ungarrison]');
+      if (gb) gb.addEventListener('click', e => {
+        e.stopPropagation();
+        this.game.ungarrison(b);
+        this.refreshSelection();
+      });
     },
 
     showEnemyInfo(e) {
@@ -9327,6 +9551,7 @@ WG.INCOME_TICK = 0.5;
     crosshair: null,
     lasso: null,
     lassoCtx: null,
+    garrisonBtn: null,
     hudTick: 0
   };
 
@@ -9383,6 +9608,20 @@ WG.INCOME_TICK = 0.5;
     Mobile.lasso.id = 'mobile-lasso';
     app.appendChild(Mobile.lasso);
     Mobile.lassoCtx = Mobile.lasso.getContext('2d');
+
+    Mobile.garrisonBtn = document.createElement('button');
+    Mobile.garrisonBtn.id = 'mobile-garrison';
+    Mobile.garrisonBtn.type = 'button';
+    Mobile.garrisonBtn.textContent = '放出守军';
+    Mobile.garrisonBtn.addEventListener('click', () => {
+      const g = Mobile.game;
+      const b = g && g.selection.building;
+      if (b && b.type === 'bastion') {
+        g.ungarrison(b);
+        refreshStatus();
+      }
+    });
+    app.appendChild(Mobile.garrisonBtn);
 
     Mobile.sheet = $('sidebar');
     if (Mobile.sheet && !$('side-close')) {
@@ -9606,6 +9845,12 @@ WG.INCOME_TICK = 0.5;
     const p = g.players[0];
     Mobile.status.innerHTML = '<span>' + left + '</span><span>人口 <b>' + p.popUsed + '</b>/' + p.popCap + '</span>';
     Mobile.status.classList.toggle('hidden', Mobile.sheetOpen);
+    const tower = g.selection.building;
+    const showGarrison = !!(tower && tower.type === 'bastion' && tower.garrison && tower.garrison.length);
+    if (Mobile.garrisonBtn) {
+      Mobile.garrisonBtn.classList.toggle('show', showGarrison);
+      Mobile.garrisonBtn.textContent = showGarrison ? `放出守军 (${tower.garrison.length})` : '放出守军';
+    }
   }
 
   function onGameStart(g) {
@@ -9638,6 +9883,7 @@ WG.INCOME_TICK = 0.5;
     if (Mobile.cancel) Mobile.cancel.classList.remove('show');
     if (Mobile.placeBtn) Mobile.placeBtn.classList.remove('show');
     if (Mobile.crosshair) Mobile.crosshair.classList.remove('show');
+    if (Mobile.garrisonBtn) Mobile.garrisonBtn.classList.remove('show');
     hideLasso();
   }
 
@@ -9648,6 +9894,7 @@ WG.INCOME_TICK = 0.5;
     if (Mobile.cancel) Mobile.cancel.classList.remove('show');
     if (Mobile.placeBtn) Mobile.placeBtn.classList.remove('show');
     if (Mobile.crosshair) Mobile.crosshair.classList.remove('show');
+    if (Mobile.garrisonBtn) Mobile.garrisonBtn.classList.remove('show');
     hideLasso();
   }
 
@@ -9737,6 +9984,14 @@ WG.INCOME_TICK = 0.5;
 
     const ownBuilding = findOwnBuilding(w.x, w.y);
     if (ownBuilding) {
+      const selected = g.getSelectedUnits();
+      if (ownBuilding.type === 'bastion' && selected.length &&
+          selected.some(u => u.type === 'crossbow' || u.type === 'cannon')) {
+        g.garrisonUnits(ownBuilding, selected);
+        Mobile.lastTapUnit = null;
+        refreshStatus();
+        return;
+      }
       g.selectBuilding(ownBuilding);
       Mobile.lastTapUnit = null;
       refreshStatus();
