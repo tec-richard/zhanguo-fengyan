@@ -778,6 +778,18 @@ kbd{
 #build-grid .it-tier{font-size:6.5px;line-height:10px}
 #build-grid .it-lock{font-size:6.5px;line-height:11px}
 
+/* 敌国数量选择 */
+.opponents-head{margin-top:9px}
+.opponents-head em{font-style:normal;font-size:9px;color:rgba(232,217,184,.32);letter-spacing:.08em}
+.opponents-row{display:flex;gap:5px}
+.opponents-row button{
+  width:34px;height:28px;border:1px solid rgba(200,162,82,.18);
+  background:rgba(18,18,14,.6);color:rgba(232,217,184,.55);
+  font-family:var(--font-call);font-size:13px;transition:.15s;
+}
+.opponents-row button:hover{border-color:var(--line-strong)}
+.opponents-row button.active{border-color:var(--gold);background:rgba(66,55,32,.5);color:var(--gold-bright)}
+
 /* ============================================================
    战国烽烟 · 手机触屏界面
    只在 body.touch 下启用，桌面端完全不受影响
@@ -1049,6 +1061,12 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
   #mobile-place-confirm{bottom:calc(54px + env(safe-area-inset-bottom));height:34px;font-size:11px}
 }
 
+/* 长按空地后拖拽的圈选/框选轨迹 */
+#mobile-lasso{
+  position:fixed;inset:0;z-index:8;pointer-events:none;display:none;
+  width:100%;height:100%;
+}
+
 </style>
 </head>
 <body>
@@ -1100,7 +1118,7 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
         <li data-obj="economy"><i></i><span>先建兵营，再扩充农田与铜矿场</span></li>
         <li data-obj="village"><i></i><span>夺取一座村庄，扩张势力</span></li>
         <li data-obj="army"><i></i><span>组建十人以上的军队</span></li>
-        <li data-obj="victory"><i></i><span>攻破敌国城池</span></li>
+        <li data-obj="victory"><i></i><span>攻破所有敌国城池</span></li>
       </ul>
     </div>
 
@@ -1184,7 +1202,7 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
       </div>
       <p class="menu-lore">
         周室衰微，七雄并立。墨家巨子自西域归来，献上红夷炮图与火药秘法。
-        古老的战场，即将被雷霆与铁骑改写。选择一个诸侯国，在河流、沙漠与山丘之间，
+        古老的战场，即将被雷霆与铁骑改写。选择七雄之一，在黄河、长江、太行与东海之间，
         筑城、屯田、练兵，然后——横扫六合。
       </p>
 
@@ -1198,6 +1216,15 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
             <button data-diff="easy"><b>宽仁</b><small>轻松经营</small></button>
             <button data-diff="normal" class="active"><b>争霸</b><small>标准对战</small></button>
             <button data-diff="hard"><b>虎狼</b><small>强敌压境</small></button>
+          </div>
+          <div class="menu-section-head small opponents-head"><span>敌 国 数 量</span><em>1 对多</em></div>
+          <div id="opponents-row" class="opponents-row">
+            <button data-opponents="1" class="active">1</button>
+            <button data-opponents="2">2</button>
+            <button data-opponents="3">3</button>
+            <button data-opponents="4">4</button>
+            <button data-opponents="5">5</button>
+            <button data-opponents="6">6</button>
           </div>
         </div>
         <div class="menu-actions">
@@ -1216,11 +1243,11 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
       <div class="help-columns">
         <section>
           <h3>立国</h3>
-          <p>选择七雄之一，各国有独特加成。敌国会随机选择另一诸侯，与你争夺中原。</p>
+          <p>选择七雄之一，各国有独特加成。开局可选择 1～6 个敌国，最多一打六；敌国会从其余六国中随机选择，并从各自的都城出兵。</p>
           <h3>经济</h3>
           <p><b>农田</b>产粮，<b>铜矿场</b>产铜（须建在铜矿脉上），<b>城池</b>与<b>村庄</b>也会提供赋税。占领中立村庄可持续获得资源与视野。</p>
           <h3>营造</h3>
-          <p>在右侧「营造」页选择建筑，左键放置，右键取消。建筑需建在已探索的平原或沙地上。<b>同一时间只能营造一座建筑</b>，且必须按阶梯解锁：兵营 → 铜矿场 / 箭塔 / 靶场 → 书院 / 马厩 → 火炮坊。民居提供人口上限，书院研究科技。</p>
+          <p>在右侧「营造」页选择建筑，左键放置，右键取消。建筑需建在已探索的平原或沙地上。<b>同一时间只能营造一座建筑</b>，且必须按阶梯解锁：兵营 → 铜矿场 / 箭塔 / 靶场 → 书院 / 马厩 → 火炮坊。民居提供人口上限，书院研究科技。舆图涵盖关中、江汉、齐鲁、燕山、太行、河内与淮泗，黄河、长江、淮水与东海会阻挡行军，需从桥梁通过。</p>
           <h3>练兵</h3>
           <p>兵营出步兵、枪兵；靶场出弩兵；马厩出骑兵；火炮坊出红夷大炮。每座生产建筑可独立排队。</p>
           <p><b>天火</b>：火炮坊建成后，点击顶栏「天火」，再左键选择地点，可呼叫十轮红夷天火齐射。冷却 120 秒。</p>
@@ -1244,6 +1271,8 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
             <div><kbd>P</kbd><span>暂停</span></div>
             <div><kbd>方向键</kbd><span>移动视角</span></div>
             <div><kbd>滚轮</kbd><span>缩放视野</span></div>
+            <div><kbd>长按部队</kbd><span>选中全部同类型</span></div>
+            <div><kbd>长按空地拖动</kbd><span>画圈/方框框选</span></div>
             <div><kbd>1-9</kbd><span>编队 / 呼出</span></div>
             <div><kbd>Ctrl+1-9</kbd><span>设置编队</span></div>
             <div><kbd>F</kbd><span>回到城池</span></div>
@@ -1252,7 +1281,8 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
         </section>
         <section class="help-tips">
           <h3>军争要诀</h3>
-          <p>· 山丘会提升远程单位射程，河流只能从桥梁通过，沙漠与森林会拖慢行军。</p>
+          <p>· 山丘会提升远程单位射程，河流只能从桥梁通过，湖泊与东海不可通行，沙漠与森林会拖慢行军。</p>
+          <p>· 我方部队的自动警戒半径为 220（弩兵射程），不会主动追出过远；主动下达攻击命令则不受此限。</p>
           <p>· 红夷大炮有最小射程，不要让它被敌人贴脸。</p>
           <p>· 箭塔与城池会自动射击靠近的敌人，可作为防线支点。</p>
           <p>· 摧毁敌方<b>城池</b>即可获胜；自己的城池被毁则败北。</p>
@@ -1309,68 +1339,138 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
 window.WG = window.WG || {};
 
 WG.WORLD = {
-  w: 3000,
-  h: 2000,
+  w: 4800,
+  h: 3200,
   tile: 32,
-  cols: 94,
-  rows: 63
+  cols: 150,
+  rows: 100
 };
 
 WG.TEAM = { PLAYER: 0, ENEMY: 1, NEUTRAL: 2 };
 
+/* ------------------------------------------------------------
+   战国地理舆图
+   七国都城 + 黄河/长江/淮水 + 太行/秦岭/燕山 + 关中/江汉/齐鲁
+   ------------------------------------------------------------ */
 WG.MAP_CONFIG = {
-  seed: 20240517,
-  playerBase: { x: 900, y: 1540 },
-  enemyBase: { x: 2100, y: 460 },
-  river: [
-    [-120, 470], [200, 530], [480, 620], [700, 760], [840, 880], [930, 990],
-    [1080, 1040], [1200, 1120], [1320, 1130], [1440, 1200], [1580, 1240],
-    [1750, 1320], [1900, 1390], [2050, 1440], [2210, 1480], [2380, 1510],
-    [2540, 1560], [2700, 1580], [2850, 1620], [3120, 1710]
+  seed: 20260517,
+  bases: {
+    qin:  { faction: 'qin',  name: '咸阳', region: '关中', x: 900,  y: 2500 },
+    chu:  { faction: 'chu',  name: '郢',   region: '江汉', x: 2600, y: 2750 },
+    qi:   { faction: 'qi',   name: '临淄', region: '齐鲁', x: 4000, y: 1050 },
+    yan:  { faction: 'yan',  name: '蓟',   region: '燕山', x: 3800, y: 350  },
+    zhao: { faction: 'zhao', name: '邯郸', region: '邯郸', x: 3000, y: 650  },
+    wei:  { faction: 'wei',  name: '大梁', region: '河内', x: 2750, y: 1550 },
+    han:  { faction: 'han',  name: '新郑', region: '颍川', x: 2250, y: 1850 }
+  },
+  /* 兼容旧逻辑：默认视角与远程 AI 目标 */
+  playerBase: { x: 900, y: 2500 },
+  enemyBase: { x: 4000, y: 1050 },
+  rivers: [
+    {
+      name: '黄河', width: 58,
+      points: [
+        [-120, 720], [380, 690], [760, 760], [1180, 620], [1580, 500],
+        [1850, 650], [1930, 900], [2010, 1140], [2280, 1240], [2660, 1200],
+        [3040, 1180], [3440, 1240], [3840, 1300], [4240, 1270], [4920, 1340]
+      ],
+      bridgeT: [0.27, 0.52, 0.76]
+    },
+    {
+      name: '长江', width: 54,
+      points: [
+        [-120, 2790], [480, 2740], [980, 2670], [1460, 2720], [1880, 2840],
+        [2280, 2870], [2680, 2790], [3080, 2710], [3480, 2760], [3880, 2680],
+        [4280, 2600], [4920, 2560]
+      ],
+      bridgeT: [0.22, 0.48, 0.73]
+    },
+    {
+      name: '淮水', width: 38,
+      points: [
+        [1700, 2070], [2080, 2100], [2460, 2030], [2860, 2110],
+        [3260, 2050], [3660, 2130], [4060, 2080], [4460, 2160], [4820, 2200]
+      ],
+      bridgeT: [0.32, 0.62]
+    }
   ],
-  bridgeT: [0.30, 0.55, 0.79],
+  sea: { x: 4880, y: 1550, rx: 470, ry: 1750, name: '东海' },
+  lakes: [
+    { x: 2860, y: 2780, rx: 250, ry: 115, name: '云梦泽' },
+    { x: 3340, y: 2480, rx: 170, ry: 90, name: '彭蠡' }
+  ],
   villages: [
-    { x: 1240, y: 700, name: '栎阳驿' },
-    { x: 730, y: 1280, name: '白水村' },
-    { x: 1970, y: 940, name: '太行渡' },
-    { x: 1750, y: 1710, name: '南原邑' }
+    { x: 620,  y: 2240, name: '栎阳' },
+    { x: 860,  y: 1990, name: '白水' },
+    { x: 2580, y: 980,  name: '太行渡' },
+    { x: 1900, y: 2980, name: '南原' },
+    { x: 3500, y: 1600, name: '陶邑' },
+    { x: 3200, y: 2540, name: '寿春' },
+    { x: 2800, y: 700,  name: '平阳' },
+    { x: 2480, y: 1420, name: '洛阳' }
   ],
   deposits: [
-    { x: 300, y: 1420, rich: true },
-    { x: 705, y: 1750, rich: false },
-    { x: 2720, y: 290, rich: true },
-    { x: 2280, y: 650, rich: false },
-    { x: 1260, y: 1450, rich: true },
-    { x: 1840, y: 760, rich: false },
-    { x: 960, y: 610, rich: true }
+    { x: 380,  y: 2520, rich: true },
+    { x: 700,  y: 2860, rich: false },
+    { x: 1250, y: 2140, rich: true },
+    { x: 1850, y: 2460, rich: false },
+    { x: 2380, y: 3000, rich: true },
+    { x: 2850, y: 2380, rich: false },
+    { x: 3350, y: 2860, rich: true },
+    { x: 4050, y: 2430, rich: false },
+    { x: 4300, y: 1450, rich: true },
+    { x: 3780, y: 950,  rich: false },
+    { x: 3320, y: 520,  rich: true },
+    { x: 2550, y: 470,  rich: false },
+    { x: 1850, y: 1160, rich: true },
+    { x: 2900, y: 1650, rich: false }
   ],
   ridges: [
-    { x: 1520, y: 610, rx: 300, ry: 195, strength: 1 },
-    { x: 760, y: 1020, rx: 190, ry: 130, strength: .75 },
-    { x: 2180, y: 1090, rx: 240, ry: 150, strength: .8 }
+    { x: 1500, y: 2180, rx: 700, ry: 175, strength: 1.0 },
+    { x: 2900, y: 920,  rx: 175, ry: 650, strength: .95 },
+    { x: 4000, y: 450,  rx: 450, ry: 165, strength: .9 },
+    { x: 3000, y: 2260, rx: 410, ry: 165, strength: .7 },
+    { x: 3850, y: 1440, rx: 300, ry: 220, strength: .7 },
+    { x: 1200, y: 1420, rx: 500, ry: 300, strength: .55 }
   ],
   deserts: [
-    { x: 2200, y: 1740, rx: 520, ry: 310 },
-    { x: 280, y: 940, rx: 300, ry: 250 }
+    { x: 1900, y: 650, rx: 430, ry: 285 },
+    { x: 650,  y: 900, rx: 300, ry: 250 },
+    { x: 2580, y: 280, rx: 300, ry: 180 }
   ],
   forests: [
-    { x: 930, y: 1620, rx: 280, ry: 190 },
-    { x: 1810, y: 720, rx: 260, ry: 170 },
-    { x: 330, y: 390, rx: 290, ry: 200 },
-    { x: 2740, y: 1060, rx: 210, ry: 300 }
+    { x: 1400, y: 2360, rx: 400, ry: 180 },
+    { x: 2750, y: 1220, rx: 220, ry: 340 },
+    { x: 3220, y: 2920, rx: 450, ry: 150 },
+    { x: 4230, y: 520,  rx: 250, ry: 160 },
+    { x: 3400, y: 1850, rx: 220, ry: 170 }
   ],
   rocks: [
-    { x: 1420, y: 230, rx: 360, ry: 160 },
-    { x: 2920, y: 1240, rx: 150, ry: 300 },
-    { x: 130, y: 1870, rx: 290, ry: 120 },
-    { x: 420, y: 240, rx: 260, ry: 130 }
+    { x: 4700, y: 800,  rx: 260, ry: 380 },
+    { x: 4600, y: 2800, rx: 300, ry: 260 },
+    { x: 300,  y: 300,  rx: 260, ry: 180 },
+    { x: 100,  y: 2700, rx: 200, ry: 300 }
   ],
   features: [
-    { x: 1180, y: 1060, name: '渭水', kind: 'river' },
-    { x: 1520, y: 520, name: '太行丘陵', kind: 'hill' },
-    { x: 2280, y: 1760, name: '流沙原', kind: 'desert' },
-    { x: 1810, y: 600, name: '黑松林', kind: 'forest' },
-    { x: 1606, y: 1188, name: '响水渡', kind: 'bridge' }
+    { x: 900,  y: 2460, name: '关中', kind: 'region' },
+    { x: 460,  y: 1800, name: '陇西', kind: 'region' },
+    { x: 1320, y: 2880, name: '汉中', kind: 'region' },
+    { x: 2460, y: 2680, name: '江汉', kind: 'region' },
+    { x: 2860, y: 2780, name: '云梦泽', kind: 'lake' },
+    { x: 3840, y: 1430, name: '齐鲁', kind: 'region' },
+    { x: 4340, y: 1220, name: '胶东', kind: 'region' },
+    { x: 4000, y: 350,  name: '燕山', kind: 'hill' },
+    { x: 4420, y: 220,  name: '辽东', kind: 'region' },
+    { x: 2880, y: 300,  name: '代北', kind: 'region' },
+    { x: 2900, y: 880,  name: '太行', kind: 'hill' },
+    { x: 2700, y: 1500, name: '河内', kind: 'region' },
+    { x: 2500, y: 1100, name: '上党', kind: 'region' },
+    { x: 2140, y: 1980, name: '南阳', kind: 'region' },
+    { x: 3420, y: 2200, name: '淮泗', kind: 'region' },
+    { x: 4620, y: 1560, name: '东海', kind: 'sea' },
+    { x: 2450, y: 1150, name: '黄河', kind: 'river' },
+    { x: 2920, y: 2790, name: '长江', kind: 'river' },
+    { x: 3450, y: 2080, name: '淮水', kind: 'river' }
   ]
 };
 
@@ -1627,13 +1727,15 @@ WG.GAME = {
   maxConstruction: 1,
   buildRadius: 0,
   cameraSpeed: 900,
-  zoomMin: 0.62,
+  zoomMin: 0.48,
   zoomMax: 1.45,
   fogUpdate: 0.11,
-  maxUnitsSoft: 220
+  maxUnitsSoft: 220,
+  autoEngageRange: 220
 };
 
 WG.INCOME_TICK = 0.5;
+
 
 </script>
 <script>
@@ -1996,6 +2098,7 @@ WG.INCOME_TICK = 0.5;
   };
 })();
 
+
 </script>
 <script>
 /* ============================================================
@@ -2069,14 +2172,21 @@ WG.INCOME_TICK = 0.5;
     const noise = new U.ValueNoise(seed);
     const rng = new U.RNG(seed ^ 0x9e3779b9);
 
-    const metrics = polyMetrics(CFG.river);
-    const bridges = CFG.bridgeT.map((t, i) => {
-      const p = pointAt(CFG.river, metrics.segs, t);
-      return {
-        id: i, x: p.x, y: p.y, tx: p.tx, ty: p.ty,
-        nx: -p.ty, ny: p.tx, angle: Math.atan2(p.ty, p.tx) + Math.PI / 2
-      };
+    const riverData = (CFG.rivers || [{ name: '河', width: 58, points: CFG.river, bridgeT: CFG.bridgeT || [] }]).map((r, ri) => {
+      const metrics = polyMetrics(r.points);
+      return Object.assign({}, r, {
+        id: ri, metrics,
+        bridges: (r.bridgeT || []).map((t) => {
+          const p = pointAt(r.points, metrics.segs, t);
+          return {
+            x: p.x, y: p.y, tx: p.tx, ty: p.ty,
+            nx: -p.ty, ny: p.tx, angle: Math.atan2(p.ty, p.tx) + Math.PI / 2,
+            river: r.name
+          };
+        })
+      });
     });
+    const bridges = riverData.flatMap(r => r.bridges).map((b, i) => Object.assign(b, { id: i }));
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -2125,14 +2235,27 @@ WG.INCOME_TICK = 0.5;
           h = Math.min(1, 0.6 + rockMask * 0.4);
         }
 
-        // 河道
-        let riverDist = Infinity;
-        for (const s of metrics.segs) {
-          riverDist = Math.min(riverDist, U.pointSegmentDist(x, y, s.a[0], s.a[1], s.b[0], s.b[1]));
+        // 河道（黄河 / 长江 / 淮水）
+        for (const rd of riverData) {
+          let riverDist = Infinity;
+          for (const seg of rd.metrics.segs) {
+            riverDist = Math.min(riverDist, U.pointSegmentDist(x, y, seg.a[0], seg.a[1], seg.b[0], seg.b[1]));
+          }
+          if (riverDist < (rd.width || 52)) {
+            t = T.RIVER;
+            h = 0.18;
+            break;
+          }
         }
-        if (riverDist < 48) {
-          t = T.RIVER;
-          h = 0.18;
+
+        // 海与湖泊
+        if (CFG.sea && ellipseFalloff(x, y, CFG.sea.x, CFG.sea.y, CFG.sea.rx, CFG.sea.ry) > 0) {
+          t = T.RIVER; h = 0.13;
+        }
+        for (const lake of (CFG.lakes || [])) {
+          if (ellipseFalloff(x, y, lake.x, lake.y, lake.rx, lake.ry) > 0) {
+            t = T.RIVER; h = 0.16;
+          }
         }
 
         // 桥梁
@@ -2154,7 +2277,8 @@ WG.INCOME_TICK = 0.5;
     const map = {
       w: W.w, h: W.h, tile, cols, rows, type, height, cost, dynBlock,
       seed, noise, rng,
-      river: CFG.river, riverMetrics: metrics, bridges,
+      river: riverData[0].points, riverMetrics: riverData[0].metrics,
+      rivers: riverData, bridges, sea: CFG.sea || null, lakes: CFG.lakes || [],
       deposits: CFG.deposits.map((d, i) => ({ ...d, id: i })),
       villages: CFG.villages.map((v, i) => ({ ...v, id: i })),
       sparkles: [], reeds: [], trees: [], rocks: []
@@ -2180,8 +2304,9 @@ WG.INCOME_TICK = 0.5;
       }
     }
 
-    flatten(CFG.playerBase.x, CFG.playerBase.y, 285);
-    flatten(CFG.enemyBase.x, CFG.enemyBase.y, 285);
+    for (const base of Object.values(CFG.bases || {})) flatten(base.x, base.y, 285);
+    if (CFG.playerBase) flatten(CFG.playerBase.x, CFG.playerBase.y, 285);
+    if (CFG.enemyBase) flatten(CFG.enemyBase.x, CFG.enemyBase.y, 285);
     for (const d of map.deposits) flatten(d.x, d.y, 82);
     for (const v of map.villages) flatten(v.x, v.y, 116);
 
@@ -2200,24 +2325,28 @@ WG.INCOME_TICK = 0.5;
     }
 
     // 河面闪光与岸边芦苇
-    for (let i = 0; i < 260; i++) {
-      const f = (i + 0.5) / 260;
-      const p = pointAt(CFG.river, metrics.segs, f);
-      const off = (rng.float(-34, 34));
-      map.sparkles.push({
-        x: p.x + p.nx * off, y: p.y + p.ny * off,
-        phase: rng.float(0, Math.PI * 2), size: rng.float(2, 8)
-      });
-    }
-    for (let i = 0; i < 150; i++) {
-      const f = rng.float(0.01, 0.99);
-      const p = pointAt(CFG.river, metrics.segs, f);
-      const side = rng.chance(0.5) ? -1 : 1;
-      const off = rng.float(54, 72) * side;
-      map.reeds.push({
-        x: p.x + p.nx * off, y: p.y + p.ny * off,
-        h: rng.float(8, 18), lean: rng.float(-4, 4), n: rng.int(2, 4)
-      });
+    for (const rd of riverData) {
+      const n = Math.round(260 / riverData.length);
+      for (let i = 0; i < n; i++) {
+        const f = (i + 0.5) / n;
+        const p = pointAt(rd.points, rd.metrics.segs, f);
+        const off = rng.float(-(rd.width || 52), (rd.width || 52));
+        map.sparkles.push({
+          x: p.x + p.nx * off, y: p.y + p.ny * off,
+          phase: rng.float(0, Math.PI * 2), size: rng.float(2, 8)
+        });
+      }
+      const rn = Math.round(150 / riverData.length);
+      for (let i = 0; i < rn; i++) {
+        const f = rng.float(0.01, 0.99);
+        const p = pointAt(rd.points, rd.metrics.segs, f);
+        const side = rng.chance(0.5) ? -1 : 1;
+        const off = rng.float((rd.width || 52) + 12, (rd.width || 52) + 28) * side;
+        map.reeds.push({
+          x: p.x + p.nx * off, y: p.y + p.ny * off,
+          h: rng.float(8, 18), lean: rng.float(-4, 4), n: rng.int(2, 4)
+        });
+      }
     }
 
     // 树木与岩石随机点
@@ -2704,6 +2833,7 @@ WG.INCOME_TICK = 0.5;
     drawRoads(ctx, map);
 
     // 河流最后覆盖地表细节，水面才不会被草叶和树影弄脏
+    drawWaterBodies(ctx, map, rng);
     drawRiver(ctx, map, rng);
 
     // 芦苇（岸线之上）
@@ -2736,14 +2866,24 @@ WG.INCOME_TICK = 0.5;
   }
 
   function drawRoads(ctx, map) {
-    const b0 = map.bridges[0], b1 = map.bridges[1], b2 = map.bridges[2];
-    const routes = [
-      [[CFG.playerBase.x, CFG.playerBase.y], [730, 1280], [b0.x - b0.nx * 80, b0.y - b0.ny * 80], [b0.x + b0.nx * 80, b0.y + b0.ny * 80], [1240, 700]],
-      [[CFG.enemyBase.x, CFG.enemyBase.y], [1970, 940], [b2.x - b2.nx * 80, b2.y - b2.ny * 80], [b2.x + b2.nx * 80, b2.y + b2.ny * 80], [1750, 1710]]
-    ];
+    const bases = Object.values(CFG.bases || {});
+    const routes = [];
+    for (const base of bases) {
+      const near = map.villages.slice().sort((a, b) =>
+        U.dist(a.x, a.y, base.x, base.y) - U.dist(b.x, b.y, base.x, base.y))[0];
+      if (near && U.dist(near.x, near.y, base.x, base.y) < 760) {
+        routes.push([[base.x, base.y], [near.x, near.y]]);
+      }
+    }
+    // 国都与国都之间的几条驰道
+    const links = [['qin','wei'], ['wei','han'], ['wei','zhao'], ['zhao','yan'], ['wei','qi'], ['han','chu']];
+    for (const [a, b] of links) {
+      const A = CFG.bases && CFG.bases[a], B = CFG.bases && CFG.bases[b];
+      if (A && B) routes.push([[A.x, A.y], [B.x, B.y]]);
+    }
     for (const route of routes) {
-      ctx.strokeStyle = 'rgba(186,165,120,.3)';
-      ctx.lineWidth = 26;
+      ctx.strokeStyle = 'rgba(186,165,120,.28)';
+      ctx.lineWidth = 28;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
@@ -2756,18 +2896,60 @@ WG.INCOME_TICK = 0.5;
       const last = route[route.length - 1];
       ctx.lineTo(last[0], last[1]);
       ctx.stroke();
-      ctx.strokeStyle = 'rgba(211,190,145,.2)';
+      ctx.strokeStyle = 'rgba(211,190,145,.18)';
       ctx.lineWidth = 8;
       ctx.stroke();
     }
   }
 
+  function drawWaterBodies(ctx, map, rng) {
+    const water = (cx, cy, rx, ry, name) => {
+      ctx.save();
+      const g = ctx.createRadialGradient(cx - rx * .35, cy - ry * .35, 10, cx, cy, Math.max(rx, ry));
+      g.addColorStop(0, 'rgba(103,166,166,.95)');
+      g.addColorStop(.45, 'rgba(54,111,120,.98)');
+      g.addColorStop(1, 'rgba(25,63,72,.99)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, .08, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(189,174,124,.4)';
+      ctx.lineWidth = 9;
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(27,64,60,.45)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(206,228,213,.18)';
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < 12; i++) {
+        const a = rng.float(.2, Math.PI * 1.8);
+        const r = rng.float(.3, .9);
+        const x = cx + Math.cos(a) * rx * r;
+        const y = cy + Math.sin(a) * ry * r;
+        const w = rng.float(8, 30);
+        ctx.beginPath();
+        ctx.moveTo(x - w, y);
+        ctx.quadraticCurveTo(x, y - rng.float(1, 4), x + w, y + rng.float(-2, 2));
+        ctx.stroke();
+      }
+      ctx.restore();
+    };
+    if (map.sea) water(map.sea.x, map.sea.y, map.sea.rx, map.sea.ry, map.sea.name);
+    for (const l of (map.lakes || [])) water(l.x, l.y, l.rx, l.ry, l.name);
+  }
+
   function drawRiver(ctx, map, rng) {
-    const pts = map.river;
+    const rivers = map.rivers || [{ points: map.river, metrics: map.riverMetrics, width: 58 }];
+    for (const rd of rivers) drawOneRiver(ctx, rd, rng);
+  }
+
+  function drawOneRiver(ctx, rd, rng) {
+    const pts = rd.points;
+    const scale = (rd.width || 58) / 58;
     function line(width, color, blur) {
       ctx.save();
       ctx.strokeStyle = color;
-      ctx.lineWidth = width;
+      ctx.lineWidth = width * scale;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       if (blur) { ctx.shadowColor = color; ctx.shadowBlur = blur; }
@@ -2796,10 +2978,10 @@ WG.INCOME_TICK = 0.5;
     // 水纹与流动感
     ctx.save();
     ctx.lineCap = 'round';
-    for (let i = 0; i < 160; i++) {
+    for (let i = 0; i < 100; i++) {
       const f = rng.float(0, 1);
-      const p = pointAt(pts, map.riverMetrics.segs, f);
-      const off = rng.float(-38, 38);
+      const p = pointAt(pts, rd.metrics.segs, f);
+      const off = rng.float(-38, 38) * scale;
       const x = p.x + p.nx * off, y = p.y + p.ny * off;
       const w = rng.float(5, 22);
       const a = rng.float(.08, .22);
@@ -2822,7 +3004,7 @@ WG.INCOME_TICK = 0.5;
         const dx = next[0] - prev[0], dy = next[1] - prev[1];
         const len = Math.hypot(dx, dy) || 1;
         const nx = -dy / len, ny = dx / len;
-        const x = p[0] + nx * 55 * side, y = p[1] + ny * 55 * side;
+        const x = p[0] + nx * 55 * scale * side, y = p[1] + ny * 55 * scale * side;
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
       ctx.stroke();
@@ -2841,7 +3023,7 @@ WG.INCOME_TICK = 0.5;
         const dx = next[0] - prev[0], dy = next[1] - prev[1];
         const len = Math.hypot(dx, dy) || 1;
         const nx = -dy / len, ny = dx / len;
-        const x = p[0] + nx * 54 * side, y = p[1] + ny * 54 * side;
+        const x = p[0] + nx * 54 * scale * side, y = p[1] + ny * 54 * scale * side;
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
       ctx.stroke();
@@ -3096,6 +3278,7 @@ WG.INCOME_TICK = 0.5;
     T, generate, render, renderMini, terrainAt, heightAt, pointAt, polyMetrics
   };
 })();
+
 
 </script>
 <script>
@@ -4269,6 +4452,7 @@ WG.INCOME_TICK = 0.5;
   };
 })();
 
+
 </script>
 <script>
 /* ============================================================
@@ -4439,6 +4623,7 @@ WG.INCOME_TICK = 0.5;
   };
 })();
 
+
 </script>
 <script>
 /* ============================================================
@@ -4535,12 +4720,29 @@ WG.INCOME_TICK = 0.5;
       this.inputEnabled = true;
       this.difficulty = WG.DIFFICULTY[difficultyId] || WG.DIFFICULTY.normal;
       this.factionId = factionId;
+      this.opponentCount = Math.max(1, Math.min(6, Number(opts.opponents) || 1));
+      this.aiEcoScale = 1 / Math.pow(this.opponentCount, .55);
       this.player = this.createPlayer(0, factionId);
       const enemyFactions = WG.FACTION_ORDER.filter(f => f !== factionId);
-      this.enemyFactionId = enemyFactions[Math.floor(Math.random() * enemyFactions.length)];
-      this.enemyPlayer = this.createPlayer(1, this.enemyFactionId);
+      for (let i = enemyFactions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [enemyFactions[i], enemyFactions[j]] = [enemyFactions[j], enemyFactions[i]];
+      }
+      this.enemyFactionIds = enemyFactions.slice(0, this.opponentCount);
+      this.enemyFactionId = this.enemyFactionIds[0];
       this.players[0] = this.player;
-      this.players[1] = this.enemyPlayer;
+      this.enemyPlayers = [];
+      for (let i = 0; i < this.enemyFactionIds.length; i++) {
+        const player = this.createPlayer(i + 1, this.enemyFactionIds[i]);
+        this.enemyPlayers.push(player);
+        this.players[i + 1] = player;
+      }
+      this.enemyPlayer = this.enemyPlayers[0];
+      const bases = WG.MAP_CONFIG.bases || {};
+      this.playerBase = bases[factionId] || WG.MAP_CONFIG.playerBase;
+      this.enemyBase = bases[this.enemyFactionIds[0]] || WG.MAP_CONFIG.enemyBase;
+      this.aiList = [];
+      this.ai = null;
       this.rng = new U.RNG((Date.now() ^ 0x9e3779b9) >>> 0);
       this.mouse = {
         x: 0, y: 0, worldX: 0, worldY: 0, down: false, button: -1,
@@ -4563,6 +4765,12 @@ WG.INCOME_TICK = 0.5;
       this.starting = true;
     }
 
+    areEnemies(a, b) {
+      if (a == null || b == null || a === b) return false;
+      if (a === TEAM.NEUTRAL || b === TEAM.NEUTRAL) return false;
+      return (a === 0) !== (b === 0);
+    }
+
     createPlayer(team, factionId) {
       return {
         team, faction: factionId,
@@ -4578,13 +4786,27 @@ WG.INCOME_TICK = 0.5;
        开局
        ------------------------------------------------------------ */
     start() {
-      this.spawnBase(0, this.factionId, { x: WG.MAP_CONFIG.playerBase.x, y: WG.MAP_CONFIG.playerBase.y });
-      this.spawnBase(1, this.enemyFactionId, { x: WG.MAP_CONFIG.enemyBase.x, y: WG.MAP_CONFIG.enemyBase.y });
+      this.spawnBase(0, this.factionId, this.playerBase, this.enemyBase);
+      for (let i = 0; i < this.enemyFactionIds.length; i++) {
+        const team = i + 1;
+        const faction = this.enemyFactionIds[i];
+        const base = (WG.MAP_CONFIG.bases && WG.MAP_CONFIG.bases[faction]) || WG.MAP_CONFIG.enemyBase;
+        this.spawnBase(team, faction, base, this.playerBase);
+        const ai = new WG.AI(this, team, base);
+        ai.ecoScale = this.aiEcoScale;
+        ai.attackTimer += (team - 1) * 9;
+        ai.raidTimer += (team - 1) * 12;
+        this.aiList.push(ai);
+      }
+      this.ai = this.aiList[0] || null;
+      this.enemyBase = (WG.MAP_CONFIG.bases && WG.MAP_CONFIG.bases[this.enemyFactionIds[0]]) || WG.MAP_CONFIG.enemyBase;
       this.stats.player.trained = 0;
       this.stats.enemy.trained = 0;
       if (this.difficulty.startBonus) {
-        this.enemyPlayer.resources.food += this.difficulty.startBonus;
-        this.enemyPlayer.resources.copper += this.difficulty.startBonus;
+        for (const p of this.enemyPlayers) {
+          p.resources.food += Math.round(this.difficulty.startBonus * this.aiEcoScale);
+          p.resources.copper += Math.round(this.difficulty.startBonus * this.aiEcoScale);
+        }
       }
       for (const v of this.map.villages) {
         this.villageList.push({
@@ -4597,21 +4819,22 @@ WG.INCOME_TICK = 0.5;
       this.initFog();
       this.updatePlayerDerived();
       this.updateVision(true);
-      this.centerOn(WG.MAP_CONFIG.playerBase.x, WG.MAP_CONFIG.playerBase.y, true);
+      this.centerOn(this.playerBase.x, this.playerBase.y, true);
       this.bindInput();
-      this.ai = new WG.AI(this, 1);
       this.starting = false;
-      this.addAlert(`斥候来报：${WG.FACTIONS[this.enemyFactionId].full}已在东北集结，意图不明。`, 'warn');
-      this.toast(`敌国：${WG.FACTIONS[this.enemyFactionId].full} · 难度：${this.difficulty.name}`);
+      const enemyNames = this.enemyFactionIds.map(f => WG.FACTIONS[f].full).join('、');
+      this.addAlert(`斥候来报：${enemyNames}已在四方集结，意图不明。`, 'warn');
+      this.toast(`敌国：${enemyNames} · 难度：${this.difficulty.name} · ${this.opponentCount} 对 1`);
       if (WG.Audio) { WG.Audio.init(); WG.Audio.play('horn', .5); }
       return this;
     }
 
-    spawnBase(team, factionId, base) {
+    spawnBase(team, factionId, base, facingBase) {
       const p = this.players[team];
       const color = WG.FACTIONS[factionId].color;
-      const mirror = team === 1 ? -1 : 1;
-      this.addBuilding('hq', team, base.x, base.y, true);
+      const mirror = team === 0 ? 1 : -1;
+      const hq = this.addBuilding('hq', team, base.x, base.y, true);
+      if (hq) hq.name = base.name || WG.FACTIONS[factionId].full;
       const layout = [
         ['house', -106, -4],
         ['farm', -80, 126],
@@ -4621,7 +4844,8 @@ WG.INCOME_TICK = 0.5;
         const b = this.addBuilding(type, team, base.x + dx * mirror, base.y + dy * mirror, true);
         if (b) b.color = color;
       }
-      const units = WG.START.units;
+      const units = team === 0 ? WG.START.units :
+        WG.START.units.slice(0, Math.max(4, Math.round(WG.START.units.length * (this.aiEcoScale || 1))));
       for (let i = 0; i < units.length; i++) {
         const def = WG.UNIT_TYPES[units[i]];
         let spot = null;
@@ -4642,7 +4866,7 @@ WG.INCOME_TICK = 0.5;
         }
         if (!spot) spot = U.findSpawnSpot(this.map, base.x, base.y, 260, 40);
         const u = this.createUnit(units[i], team, spot.x, spot.y);
-        if (u) u.facing = Math.atan2(WG.MAP_CONFIG.enemyBase.y - base.y, WG.MAP_CONFIG.enemyBase.x - base.x) + this.rng.float(-.35, .35);
+        if (u) u.facing = Math.atan2((facingBase || this.enemyBase).y - base.y, (facingBase || this.enemyBase).x - base.x) + this.rng.float(-.35, .35);
       }
       p.resources.food = WG.START.food;
       p.resources.copper = WG.START.copper;
@@ -4667,12 +4891,13 @@ WG.INCOME_TICK = 0.5;
         dead: false, smokeTimer: 0
       };
       if (!b.rally && def.produces) {
-        const dir = Math.atan2(WG.MAP_CONFIG.enemyBase.y - y, WG.MAP_CONFIG.enemyBase.x - x);
+        const targetBase = team === 0 ? this.enemyBase : this.playerBase;
+        const dir = Math.atan2((targetBase || this.enemyBase).y - y, (targetBase || this.enemyBase).x - x);
         b.rally = { x: x + Math.cos(dir) * 70, y: y + Math.sin(dir) * 70 };
       }
       this.buildingList.push(b);
       if (team === 0 && !complete) this.stats.player.buildings++;
-      if (team === 1 && !complete) this.stats.enemy.buildings++;
+      if (team !== 0 && !complete) this.stats.enemy.buildings++;
       this.markBlock(b, 1);
       this.pushUnitsOut(b);
       return b;
@@ -4740,12 +4965,13 @@ WG.INCOME_TICK = 0.5;
         pathTimer: 0, retargetTimer: this.rng.float(0, .4),
         moving: false, walkPhase: this.rng.float(0, 6), attackAnim: 0,
         hitFlash: 0, chargeReady: false, lastAttacker: null,
+        leashX: spot.x, leashY: spot.y,
         dead: false, deadTime: 0, seed: this.rng.float(0, 100),
         horseTone: this.rng.chance(.5) ? '#8a6544' : this.rng.chance(.5) ? '#6f4f36' : '#967250'
       };
       this.unitList.push(u);
       if (team === 0) this.stats.player.trained++;
-      if (team === 1) this.stats.enemy.trained++;
+      else this.stats.enemy.trained++;
       return u;
     }
 
@@ -4768,7 +4994,7 @@ WG.INCOME_TICK = 0.5;
        资源、人口、收入
        ------------------------------------------------------------ */
     updatePlayerDerived() {
-      for (const team of [0, 1]) {
+      for (const team of Object.keys(this.players).map(Number)) {
         const p = this.players[team];
         let cap = 0;
         for (const b of this.buildingList) {
@@ -4789,7 +5015,7 @@ WG.INCOME_TICK = 0.5;
     }
 
     updateIncomeRates() {
-      for (const team of [0, 1]) {
+      for (const team of Object.keys(this.players).map(Number)) {
         const p = this.players[team];
         let food = 0, copper = 0;
         for (const b of this.buildingList) {
@@ -4808,14 +5034,17 @@ WG.INCOME_TICK = 0.5;
           if (v.owner === team) { food += 2; copper += 2; }
         }
         if (p.faction === 'qi') { food *= 1.15; copper *= 1.15; }
-        if (team === 1) { food *= this.difficulty.aiIncome; copper *= this.difficulty.aiIncome; }
+        if (team !== 0) {
+          const eco = this.difficulty.aiIncome * (this.aiEcoScale || 1);
+          food *= eco; copper *= eco;
+        }
         p.income.food = food;
         p.income.copper = copper;
       }
     }
 
     incomeTick() {
-      for (const team of [0, 1]) {
+      for (const team of Object.keys(this.players).map(Number)) {
         const p = this.players[team];
         const df = p.income.food * WG.INCOME_TICK;
         const dc = p.income.copper * WG.INCOME_TICK;
@@ -5303,6 +5532,7 @@ WG.INCOME_TICK = 0.5;
     }
 
     renderFog() {
+      if (!this.fogCanvas) return;
       if (!this.fogCtx) return;
       const f = this.fogCtx;
       const w = this.fogCanvas.width, h = this.fogCanvas.height;
@@ -5446,9 +5676,28 @@ WG.INCOME_TICK = 0.5;
     }
 
     selectAllOfType(unit) {
-      const units = this.unitList.filter(u => !u.dead && u.team === 0 && u.type === unit.type &&
-        this.isVisible(u.x, u.y));
+      const units = this.unitList.filter(u => !u.dead && u.team === 0 && u.type === unit.type);
       this.selectUnits(units, false);
+    }
+
+    lassoSelect(points, additive) {
+      if (!points || points.length < 3) {
+        if (!additive) this.clearSelection();
+        return 0;
+      }
+      const inside = (x, y) => {
+        let hit = false;
+        for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+          const a = points[i], b = points[j];
+          if (((a.y > y) !== (b.y > y)) &&
+            (x < (b.x - a.x) * (y - a.y) / ((b.y - a.y) || 1e-6) + a.x)) hit = !hit;
+        }
+        return hit;
+      };
+      const units = this.unitList.filter(u => !u.dead && u.team === 0 && inside(u.x, u.y));
+      if (units.length) this.selectUnits(units, additive);
+      else if (!additive) this.clearSelection();
+      return units.length;
     }
 
     issueOrder(x, y, attackMove) {
@@ -5843,7 +6092,7 @@ WG.INCOME_TICK = 0.5;
         this.fogTimer = 0;
         this.updateVision();
       }
-      if (this.ai) this.ai.update(dt);
+      for (const ai of this.aiList) ai.update(dt);
       this.shake = Math.max(0, this.shake - dt * 18);
       this.checkVictory();
       this.cleanup(dt);
@@ -5878,7 +6127,7 @@ WG.INCOME_TICK = 0.5;
         if (b.dead) continue;
         const player = this.players[b.team];
         if (b.constructing) {
-          const speed = b.team === 1 ? diff.aiBuildSpeed : 1;
+          const speed = b.team !== 0 ? diff.aiBuildSpeed : 1;
           b.buildProgress = Math.min(1, b.buildProgress + dt * speed / Math.max(.1, b.buildTime));
           b.hp = b.maxHp * (.18 + .82 * b.buildProgress);
           if (b.buildProgress >= 1) {
@@ -5897,7 +6146,7 @@ WG.INCOME_TICK = 0.5;
         // 生产
         if (b.queue.length) {
           const q = b.queue[0];
-          const speed = b.team === 1 ? diff.aiBuildSpeed : 1;
+          const speed = b.team !== 0 ? diff.aiBuildSpeed : 1;
           q.timeLeft -= dt * speed;
           if (q.timeLeft <= 0) {
             const spot = this.findSpawnSpotForBuilding(b);
@@ -5963,7 +6212,7 @@ WG.INCOME_TICK = 0.5;
     findEnemyNearForBuilding(b) {
       let best = null, bestD = Infinity;
       for (const u of this.unitList) {
-        if (u.dead || u.team === b.team) continue;
+        if (u.dead || !this.areEnemies(b.team, u.team)) continue;
         if (!this.isVisible(u.x, u.y) && b.team === 0) continue;
         const d = U.dist(b.x, b.y, u.x, u.y);
         if (d < b.attack.range + 30 && d < bestD) { bestD = d; best = u; }
@@ -6001,6 +6250,10 @@ WG.INCOME_TICK = 0.5;
             if (t) {
               u.target = t;
               if (u.task === 'move') u.task = 'idle';
+              if (u.team === 0 && u.task !== 'attack') {
+                u.leashX = u.x;
+                u.leashY = u.y;
+              }
             }
           }
         }
@@ -6020,6 +6273,17 @@ WG.INCOME_TICK = 0.5;
     updateUnitCombat(u, dt) {
       const t = u.target;
       if (!t || t.dead) { u.target = null; return; }
+      // 玩家自动警戒：只在交战点附近追击，不无限追到地图另一头
+      if (u.team === 0 && u.task !== 'attack' && u.leashX != null &&
+          U.dist(u.x, u.y, u.leashX, u.leashY) > 260) {
+        u.target = null;
+        u.path = [];
+        u.pathIndex = 0;
+        u.task = 'move';
+        u.dest = { x: u.leashX, y: u.leashY };
+        u.pathTimer = 0;
+        return;
+      }
       const d = U.dist(u.x, u.y, t.x, t.y) - t.radius - u.radius;
       const range = this.effectiveRange(u);
       if (d <= range) {
@@ -6171,10 +6435,12 @@ WG.INCOME_TICK = 0.5;
     }
 
     findTargetForUnit(u) {
-      const vision = u.task === 'hold' ? this.effectiveRange(u) + 16 : u.vision;
+      let vision = u.task === 'hold' ? this.effectiveRange(u) + 16 : u.vision;
+      // 玩家部队的自动警戒半径统一到弩兵射程（220），避免追出过远
+      if (u.team === 0) vision = Math.min(vision, WG.GAME.autoEngageRange || 220);
       let best = null, bestScore = Infinity;
       for (const o of this.unitList) {
-        if (o.dead || o.team === u.team) continue;
+        if (o.dead || !this.areEnemies(u.team, o.team)) continue;
         if (u.team === 0 && !this.isVisible(o.x, o.y)) continue;
         const d = U.dist(u.x, u.y, o.x, o.y);
         if (d > vision + o.radius) continue;
@@ -6186,7 +6452,7 @@ WG.INCOME_TICK = 0.5;
       }
       if (!best) {
         for (const b of this.buildingList) {
-          if (b.dead || b.team === u.team) continue;
+          if (b.dead || !this.areEnemies(u.team, b.team)) continue;
           if (u.team === 0 && !this.isExplored(b.x, b.y)) continue;
           const d = U.dist(u.x, u.y, b.x, b.y) - b.radius;
           if (d > vision) continue;
@@ -6302,11 +6568,11 @@ WG.INCOME_TICK = 0.5;
       const direct = p.target && !p.target.dead && U.dist(p.tx, p.ty, p.target.x, p.target.y) < 40;
       const targets = [];
       for (const u of this.unitList) {
-        if (u.dead || u.team === p.team) continue;
+        if (u.dead || !this.areEnemies(p.team, u.team)) continue;
         if (U.dist(p.tx, p.ty, u.x, u.y) <= radius + u.radius) targets.push(u);
       }
       for (const b of this.buildingList) {
-        if (b.dead || b.team === p.team) continue;
+        if (b.dead || !this.areEnemies(p.team, b.team)) continue;
         if (U.dist(p.tx, p.ty, b.x, b.y) <= radius + b.radius) targets.push(b);
       }
       for (const t of targets) {
@@ -6347,14 +6613,15 @@ WG.INCOME_TICK = 0.5;
             const name = WG.BUILDING_TYPES[target.type].name;
             this.addAlert(`我军「${name}」遭到攻击！`, 'warn');
             this.sfx('alert', null, null, .7);
-            if (this.ai) this.ai.onPlayerAttack(target);
+            for (const ai of this.aiList) ai.onPlayerAttack(target);
           }
-        } else if (this.ai) {
-          this.ai.onBaseAttacked(target);
+        } else {
+          const owner = this.aiList.find(ai => ai.team === target.team);
+          if (owner) owner.onBaseAttacked(target);
         }
       } else if (target.kind === 'unit') {
         target.lastAttacker = source;
-        if (target.team === 0 && target.hp < target.maxHp && source && source.team === 1) {
+        if (target.team === 0 && target.hp < target.maxHp && source && source.team !== 0) {
           // 玩家单位受击提醒（节流）
           if (this.time - (this.lastPlayerHitAlert || -99) > 14) {
             this.lastPlayerHitAlert = this.time;
@@ -6413,17 +6680,17 @@ WG.INCOME_TICK = 0.5;
        ------------------------------------------------------------ */
     updateVillages(dt) {
       for (const v of this.villageList) {
-        let team0 = 0, team1 = 0;
+        const counts = {};
         for (const u of this.unitList) {
           if (u.dead) continue;
           if (U.dist(u.x, u.y, v.x, v.y) < v.radius + 36) {
-            if (u.team === 0) team0++;
-            else if (u.team === 1) team1++;
+            counts[u.team] = (counts[u.team] || 0) + 1;
           }
         }
-        if (team0 && team1) continue; // 争夺中
-        if (team0 || team1) {
-          const team = team0 ? 0 : 1;
+        const present = Object.keys(counts).map(Number).filter(t => counts[t] > 0);
+        if (present.length > 1) continue; // 争夺中
+        if (present.length === 1) {
+          const team = present[0];
           if (v.owner === team) {
             v.capture = Math.max(0, v.capture - dt * 20);
             v.capturingTeam = -1;
@@ -6435,7 +6702,7 @@ WG.INCOME_TICK = 0.5;
               v.color = WG.FACTIONS[this.players[team].faction].color;
               v.capture = 100;
               v.capturingTeam = -1;
-              const ownerName = team === 0 ? '我军' : '敌军';
+              const ownerName = team === 0 ? '我军' : (WG.FACTIONS[this.players[team].faction]?.full || '敌军');
               this.addAlert(`${ownerName}占领了「${v.name}」`, team === 0 ? 'good' : 'warn');
               this.sfx('capture', v.x, v.y, .8);
               if (team === 0) {
@@ -6489,9 +6756,10 @@ WG.INCOME_TICK = 0.5;
     checkVictory() {
       if (this.over) return;
       const playerHQ = this.buildingList.find(b => b.team === 0 && b.type === 'hq' && !b.dead);
-      const enemyHQ = this.buildingList.find(b => b.team === 1 && b.type === 'hq' && !b.dead);
+      const enemies = [...this.enemyFactionIds.keys()].map(i => i + 1);
+      const anyEnemyHQ = this.buildingList.some(b => enemies.includes(b.team) && b.type === 'hq' && !b.dead);
       if (!playerHQ) this.endGame(1);
-      else if (!enemyHQ) this.endGame(0);
+      else if (!anyEnemyHQ) this.endGame(0);
     }
 
     endGame(winner) {
@@ -6509,6 +6777,7 @@ WG.INCOME_TICK = 0.5;
 
   WG.Game = Game;
 })();
+
 
 </script>
 <script>
@@ -6796,7 +7065,8 @@ WG.INCOME_TICK = 0.5;
 
     const featureColors = {
       river: 'rgba(151,190,192,.72)', hill: 'rgba(196,184,132,.68)',
-      desert: 'rgba(218,193,145,.7)', forest: 'rgba(156,180,140,.62)', bridge: 'rgba(207,183,137,.7)'
+      desert: 'rgba(218,193,145,.7)', forest: 'rgba(156,180,140,.62)', bridge: 'rgba(207,183,137,.7)',
+      region: 'rgba(213,193,151,.62)', lake: 'rgba(151,190,192,.72)', sea: 'rgba(151,200,204,.72)'
     };
     for (const f of (WG.MAP_CONFIG.features || [])) {
       if (!this.isVisible(f.x, f.y)) continue;
@@ -6807,8 +7077,10 @@ WG.INCOME_TICK = 0.5;
     for (const v of this.villageList) {
       if (!this.isVisible(v.x, v.y)) continue;
       const p = this.worldToScreen(v.x, v.y - v.radius - 22);
-      const color = v.owner === 0 ? '#e7c579' : v.owner === 1 ? '#d98370' : '#d7c9a6';
-      const status = v.owner === 0 ? '我方村庄' : v.owner === 1 ? '敌方村庄' : '中立村庄';
+      const ownerTeam = v.owner;
+      const ownerFaction = ownerTeam > 0 ? this.players[ownerTeam] && WG.FACTIONS[this.players[ownerTeam].faction] : null;
+      const color = ownerTeam === 0 ? '#e7c579' : ownerFaction ? ownerFaction.color : '#d7c9a6';
+      const status = ownerTeam === 0 ? '我方村庄' : ownerFaction ? ownerFaction.full + '村庄' : '中立村庄';
       const contest = v.capturingTeam >= 0 && v.owner !== v.capturingTeam;
       drawLabel(v.name, color, status + (contest ? ' · 争夺中' : ''), p.x, p.y);
     }
@@ -6822,7 +7094,9 @@ WG.INCOME_TICK = 0.5;
       if (b.dead || b.type !== 'hq') continue;
       if (b.team !== 0 && !this.isVisible(b.x, b.y)) continue;
       const p = this.worldToScreen(b.x, b.y - b.radius - 30);
-      drawLabel(b.team === 0 ? '王城' : '敌国城池', b.team === 0 ? '#e7c579' : '#d98370', null, p.x, p.y);
+      const f = b.team > 0 ? WG.FACTIONS[b.faction] : null;
+      const title = b.team === 0 ? '王城' : `${f ? f.name : '敌'} · ${b.name || '城池'}`;
+      drawLabel(title, b.team === 0 ? '#e7c579' : (f ? f.color : '#d98370'), null, p.x, p.y);
     }
   };
 
@@ -7208,7 +7482,7 @@ WG.INCOME_TICK = 0.5;
     }
     for (const v of this.villageList) {
       if (!this.isExplored(v.x, v.y)) continue;
-      ctx.fillStyle = v.owner === 0 ? '#e7c579' : v.owner === 1 ? '#c8543f' : '#b6ad94';
+      ctx.fillStyle = v.owner === 0 ? '#e7c579' : (v.owner > 0 && this.players[v.owner]) ? WG.FACTIONS[this.players[v.owner].faction].color : '#b6ad94';
       ctx.strokeStyle = 'rgba(10,12,9,.7)';
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(v.x * sx, v.y * sy, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -7216,7 +7490,8 @@ WG.INCOME_TICK = 0.5;
     for (const b of this.buildingList) {
       if (b.team !== 0 && !this.isExplored(b.x, b.y)) continue;
       const size = b.type === 'hq' ? 7 : 3.5;
-      ctx.fillStyle = b.team === 0 ? '#e7c579' : '#b84835';
+      const bf = b.team > 0 && this.players[b.team] ? WG.FACTIONS[this.players[b.team].faction] : null;
+      ctx.fillStyle = b.team === 0 ? '#e7c579' : (bf ? bf.color : '#b84835');
       ctx.fillRect(b.x * sx - size / 2, b.y * sy - size / 2, size, size);
       if (b.type === 'hq') {
         ctx.strokeStyle = 'rgba(8,10,7,.7)';
@@ -7226,7 +7501,8 @@ WG.INCOME_TICK = 0.5;
     for (const u of this.unitList) {
       if (u.dead) continue;
       if (u.team !== 0 && !this.isVisible(u.x, u.y)) continue;
-      ctx.fillStyle = u.team === 0 ? '#f2dfaa' : '#e56b4f';
+      const uf = u.team > 0 && this.players[u.team] ? WG.FACTIONS[this.players[u.team].faction] : null;
+      ctx.fillStyle = u.team === 0 ? '#f2dfaa' : (uf ? uf.color : '#e56b4f');
       ctx.beginPath(); ctx.arc(u.x * sx, u.y * sy, u.type === 'cannon' ? 2.1 : 1.35, 0, Math.PI * 2); ctx.fill();
     }
     // 视口
@@ -7250,6 +7526,7 @@ WG.INCOME_TICK = 0.5;
   };
 })();
 
+
 </script>
 <script>
 /* ============================================================
@@ -7258,13 +7535,15 @@ WG.INCOME_TICK = 0.5;
 (function () {
   'use strict';
   const U = WG.U;
+  const TEAM = WG.TEAM;
 
   class AI {
-    constructor(game, team) {
+    constructor(game, team, base) {
       this.g = game;
       this.team = team;
       this.diff = game.difficulty;
-      this.base = WG.MAP_CONFIG.enemyBase;
+      this.base = base || WG.MAP_CONFIG.enemyBase;
+      this.ecoScale = game.aiEcoScale || 1;
       this.timer = 1.2;
       this.attackTimer = this.diff.firstAttack;
       this.wave = 0;
@@ -7507,7 +7786,7 @@ WG.INCOME_TICK = 0.5;
     manageVillages() {
       const g = this.g;
       // 每次只派 2 名步兵去夺取最近的未控村庄
-      const candidates = g.villageList.filter(v => v.owner !== this.team &&
+      const candidates = g.villageList.filter(v => (v.owner === TEAM.NEUTRAL || v.owner === 0) &&
         U.dist(v.x, v.y, this.base.x, this.base.y) < 1000);
       if (!candidates.length) return;
       const v = candidates.sort((a, b) => U.dist(a.x, a.y, this.base.x, this.base.y) - U.dist(b.x, b.y, this.base.x, this.base.y))[0];
@@ -7528,7 +7807,7 @@ WG.INCOME_TICK = 0.5;
       if (!hq) return;
       let closest = null, cd = Infinity;
       for (const u of this.g.unitList) {
-        if (u.dead || u.team === this.team) continue;
+        if (u.dead || !this.g.areEnemies(this.team, u.team)) continue;
         const d = U.dist(u.x, u.y, hq.x, hq.y);
         if (d < 620 && d < cd) { cd = d; closest = u; }
       }
@@ -7544,7 +7823,7 @@ WG.INCOME_TICK = 0.5;
       if (!hq) return;
       let threat = null, td = Infinity;
       for (const u of g.unitList) {
-        if (u.dead || u.team === this.team) continue;
+        if (u.dead || !this.g.areEnemies(this.team, u.team)) continue;
         const d = U.dist(u.x, u.y, hq.x, hq.y);
         if (d < 680 && d < td) { td = d; threat = u; }
       }
@@ -7552,7 +7831,7 @@ WG.INCOME_TICK = 0.5;
         for (const b of g.buildingList) {
           if (b.team !== this.team || b.dead) continue;
           for (const u of g.unitList) {
-            if (u.dead || u.team === this.team) continue;
+            if (u.dead || !this.g.areEnemies(this.team, u.team)) continue;
             const d = U.dist(u.x, u.y, b.x, b.y);
             if (d < 470 && d < td) { td = d; threat = u; }
           }
@@ -7582,7 +7861,7 @@ WG.INCOME_TICK = 0.5;
       // 选择目标：首先夺取村庄，之后进攻城池
       let target = null;
       const enemyHQ = g.buildingList.find(b => b.team === 0 && b.type === 'hq' && !b.dead);
-      const villages = g.villageList.filter(v => v.owner !== this.team);
+      const villages = g.villageList.filter(v => v.owner === TEAM.NEUTRAL || v.owner === 0);
       if (this.wave === 0 && villages.length) {
         target = villages.slice().sort((a, b) =>
           U.dist(a.x, a.y, this.base.x, this.base.y) - U.dist(b.x, b.y, this.base.x, this.base.y))[0];
@@ -7636,7 +7915,7 @@ WG.INCOME_TICK = 0.5;
       if (hq) {
         let best = null, bd = Infinity;
         for (const u of this.g.unitList) {
-          if (u.dead || u.team === this.team) continue;
+          if (u.dead || !this.g.areEnemies(this.team, u.team)) continue;
           const d = U.dist(u.x, u.y, b.x, b.y);
           if (d < bd) { bd = d; best = u; }
         }
@@ -7651,6 +7930,7 @@ WG.INCOME_TICK = 0.5;
 
   WG.AI = AI;
 })();
+
 
 </script>
 <script>
@@ -7667,6 +7947,7 @@ WG.INCOME_TICK = 0.5;
     game: null,
     selectedFaction: 'qin',
     selectedDiff: 'normal',
+    selectedOpponents: 1,
     acc: 0,
     miniAcc: 0,
     helpPausedGame: false,
@@ -7714,9 +7995,16 @@ WG.INCOME_TICK = 0.5;
           if (WG.Audio) { WG.Audio.init(); WG.Audio.play('click', .4); }
         });
       });
+      document.querySelectorAll('#opponents-row button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          this.selectedOpponents = Number(btn.dataset.opponents) || 1;
+          document.querySelectorAll('#opponents-row button').forEach(b => b.classList.toggle('active', b === btn));
+          if (WG.Audio) { WG.Audio.init(); WG.Audio.play('click', .4); }
+        });
+      });
       $('btn-start').addEventListener('click', () => {
         if (WG.Audio) WG.Audio.init();
-        WG.App.startGame(this.selectedFaction, this.selectedDiff);
+        WG.App.startGame(this.selectedFaction, this.selectedDiff, { opponents: this.selectedOpponents });
       });
       $('btn-help-menu').addEventListener('click', () => this.openHelp());
     },
@@ -7745,12 +8033,12 @@ WG.INCOME_TICK = 0.5;
       $('btn-resume').addEventListener('click', () => this.resumeGame());
       $('btn-restart').addEventListener('click', () => {
         if (WG.Audio) WG.Audio.init();
-        WG.App.startGame(this.selectedFaction, this.selectedDiff);
+        WG.App.startGame(this.selectedFaction, this.selectedDiff, { opponents: this.selectedOpponents });
       });
       $('btn-quit').addEventListener('click', () => WG.App.returnToMenu());
       $('btn-again').addEventListener('click', () => {
         this.hideEnding();
-        WG.App.startGame(this.selectedFaction, this.selectedDiff);
+        WG.App.startGame(this.selectedFaction, this.selectedDiff, { opponents: this.selectedOpponents });
       });
       $('btn-ending-menu').addEventListener('click', () => {
         this.hideEnding();
@@ -8348,7 +8636,7 @@ WG.INCOME_TICK = 0.5;
     showEnemyInfo(e) {
       const info = $('item-info');
       if (e.kind === 'village') {
-        const owner = e.owner === 2 ? '中立' : (e.owner === 0 ? '我方' : '敌方');
+        const owner = e.owner === 2 ? '中立' : (e.owner === 0 ? '我方' : (this.game && this.game.players[e.owner] ? WG.FACTIONS[this.game.players[e.owner].faction].full : '敌方'));
         info.innerHTML = `<div class="info-title"><b>${e.name}</b><span>${owner}</span></div>
           <div class="info-desc">一座中原村落。派遣部队靠近即可逐步占领，获得粮草、铜钱与视野。</div>
           <div class="info-stats"><span>产出 <b>粮+2 铜+2 /秒</b></span>${e.capture > 0 ? `<span>占领进度 <b>${Math.round(e.capture)}%</b></span>` : ''}</div>`;
@@ -8620,7 +8908,7 @@ WG.INCOME_TICK = 0.5;
       $('ending-kicker').textContent = victory ? '捷 报' : '国 殇';
       $('ending-title').textContent = victory ? titles[f.id] : '社稷倾覆';
       $('ending-text').textContent = victory
-        ? `红夷炮声震彻原野，${f.full}的玄旗插上了敌国城池。诸侯为之色变，天下格局自此改写。`
+        ? `红夷炮声震彻原野，${f.full}的玄旗插上了六国城池。诸侯为之色变，天下格局自此改写。`
         : `${f.full}的城池在炮火中崩塌。宗庙丘墟，山河易主，唯有残旗在风中低诉。`;
       const p = game.stats.player;
       $('ending-stats').innerHTML = `
@@ -8698,6 +8986,7 @@ WG.INCOME_TICK = 0.5;
   WG.UI = UI;
 })();
 
+
 </script>
 <script>
 /* ============================================================
@@ -8767,7 +9056,8 @@ WG.INCOME_TICK = 0.5;
       if (play && WG.FACTIONS[play]) {
         const diff = WG.DIFFICULTY[params.get('diff')] ? params.get('diff') : 'normal';
         setTimeout(() => {
-          this.startGame(play, diff);
+          const opp = Math.max(1, Math.min(6, Number(params.get('opponents')) || 1));
+          this.startGame(play, diff, { opponents: opp });
           const skip = parseFloat(params.get('skip') || '0');
           if (skip > 0) {
             for (let t = 0; t < skip; t += .05) this.game.update(.05);
@@ -8793,7 +9083,7 @@ WG.INCOME_TICK = 0.5;
       }
     },
 
-    startGame(faction, diff) {
+    startGame(faction, diff, opts) {
       faction = WG.FACTIONS[faction] ? faction : 'qin';
       diff = WG.DIFFICULTY[diff] ? diff : 'normal';
       this.currentFaction = faction;
@@ -8808,7 +9098,7 @@ WG.INCOME_TICK = 0.5;
         this.map = WG.Terrain.generate(WG.MAP_CONFIG.seed);
       }
       WG.activeGame = null;
-      const game = new WG.Game(this.map, faction, diff, {});
+      const game = new WG.Game(this.map, faction, diff, opts || {});
       this.game = game;
       WG.activeGame = game;
       WG.UI.onGameStart(game);
@@ -8891,6 +9181,7 @@ WG.INCOME_TICK = 0.5;
   }
 })();
 
+
 </script>
 <script>
 /* ============================================================
@@ -8926,6 +9217,8 @@ WG.INCOME_TICK = 0.5;
     cancel: null,
     placeBtn: null,
     crosshair: null,
+    lasso: null,
+    lassoCtx: null,
     hudTick: 0
   };
 
@@ -8978,6 +9271,11 @@ WG.INCOME_TICK = 0.5;
     Mobile.placeBtn.addEventListener('click', placeAtCenter);
     app.appendChild(Mobile.placeBtn);
 
+    Mobile.lasso = document.createElement('canvas');
+    Mobile.lasso.id = 'mobile-lasso';
+    app.appendChild(Mobile.lasso);
+    Mobile.lassoCtx = Mobile.lasso.getContext('2d');
+
     Mobile.sheet = $('sidebar');
     if (Mobile.sheet && !$('side-close')) {
       const close = document.createElement('button');
@@ -9004,7 +9302,7 @@ WG.INCOME_TICK = 0.5;
     }
 
     const foot = document.querySelector('.menu-foot');
-    if (foot) foot.textContent = '触屏版 · 建议横屏游玩 · 点击选择国家';
+    if (foot) foot.textContent = '触屏版 · 长按空地画圈框选 · 长按部队选中同类';
 
     bindTouch();
   }
@@ -9185,7 +9483,7 @@ WG.INCOME_TICK = 0.5;
     const g = Mobile.game;
     if (!g) { Mobile.status.innerHTML = ''; return; }
     const units = g.getSelectedUnits();
-    let left = '轻触部队选择 · 拖动地图';
+    let left = '轻触选择 · 拖动地图 · 长按框选';
     if (units.length) {
       const counts = {};
       for (const u of units) counts[u.type] = (counts[u.type] || 0) + 1;
@@ -9232,6 +9530,7 @@ WG.INCOME_TICK = 0.5;
     if (Mobile.cancel) Mobile.cancel.classList.remove('show');
     if (Mobile.placeBtn) Mobile.placeBtn.classList.remove('show');
     if (Mobile.crosshair) Mobile.crosshair.classList.remove('show');
+    hideLasso();
   }
 
   function onEnding() {
@@ -9241,6 +9540,7 @@ WG.INCOME_TICK = 0.5;
     if (Mobile.cancel) Mobile.cancel.classList.remove('show');
     if (Mobile.placeBtn) Mobile.placeBtn.classList.remove('show');
     if (Mobile.crosshair) Mobile.crosshair.classList.remove('show');
+    hideLasso();
   }
 
   /* --------------------------- 触屏手势 --------------------------- */
@@ -9355,6 +9655,79 @@ WG.INCOME_TICK = 0.5;
     refreshStatus();
   }
 
+  function resizeLasso() {
+    if (!Mobile.lasso) return;
+    const dpr = WG.App ? WG.App.dpr : (window.devicePixelRatio || 1);
+    Mobile.lasso.width = Math.round(window.innerWidth * dpr);
+    Mobile.lasso.height = Math.round(window.innerHeight * dpr);
+    Mobile.lasso.style.width = window.innerWidth + 'px';
+    Mobile.lasso.style.height = window.innerHeight + 'px';
+    Mobile.lassoCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawLasso(points) {
+    if (!Mobile.lassoCtx) return;
+    const ctx = Mobile.lassoCtx;
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    if (!points || points.length < 2) return;
+    ctx.save();
+    ctx.fillStyle = 'rgba(200,162,82,.10)';
+    ctx.strokeStyle = 'rgba(235,203,128,.85)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function showLasso() {
+    if (!Mobile.lasso) return;
+    resizeLasso();
+    Mobile.lasso.style.display = 'block';
+  }
+
+  function hideLasso() {
+    if (!Mobile.lasso) return;
+    Mobile.lasso.style.display = 'none';
+    if (Mobile.lassoCtx) Mobile.lassoCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  }
+
+  function clearLongPress(g) {
+    if (g && g.longPressTimer) {
+      clearTimeout(g.longPressTimer);
+      g.longPressTimer = null;
+    }
+  }
+
+  function beginLongPress(g) {
+    if (gesture !== g || !Mobile.game || g.moved || g.longPressUsed) return;
+    const gg = Mobile.game;
+    if (gg.paused || gg.over || gg.uiBlocked()) return;
+    if (gg.placement || gg.skyFireTargeting || gg.attackMoveMode) return;
+    const w = gg.screenToWorld(g.startX, g.startY);
+    const own = findOwnUnit(w.x, w.y);
+    if (own) {
+      g.longPressUsed = true;
+      g.mode = 'longpress';
+      gg.selectAllOfType(own);
+      Mobile.lastTouchAction = performance.now();
+      if (WG.UI) WG.UI.toast('已选中全部' + WG.UNIT_TYPES[own.type].name, 'good');
+      refreshStatus();
+      return;
+    }
+    g.longPressUsed = true;
+    g.mode = 'lasso';
+    g.points = [{ x: g.startX, y: g.startY }];
+    showLasso();
+    drawLasso(g.points);
+    if (navigator.vibrate) navigator.vibrate(12);
+  }
+
   function bindTouch() {
     const canvas = $('game-canvas');
     if (!canvas) return;
@@ -9363,6 +9736,8 @@ WG.INCOME_TICK = 0.5;
       if (!Mobile.game || Mobile.game.paused || Mobile.game.over) return;
       e.preventDefault();
       if (e.touches.length >= 2) {
+        clearLongPress(gesture);
+        hideLasso();
         const a = touchPoint(e.touches[0]), b = touchPoint(e.touches[1]);
         gesture = {
           mode: 'pinch', moved: true,
@@ -9374,8 +9749,10 @@ WG.INCOME_TICK = 0.5;
       const t = touchPoint(e.touches[0]);
       gesture = {
         mode: 'tap', startX: t.x, startY: t.y, lastX: t.x, lastY: t.y,
-        startTime: performance.now(), moved: false
+        startTime: performance.now(), moved: false, longPressUsed: false
       };
+      const g = gesture;
+      g.longPressTimer = setTimeout(() => beginLongPress(g), 420);
     }, { passive: false });
 
     canvas.addEventListener('touchmove', e => {
@@ -9396,13 +9773,27 @@ WG.INCOME_TICK = 0.5;
         }
         return;
       }
+      if (gesture.mode === 'longpress') return;
+      if (gesture.mode === 'lasso') {
+        const t = touchPoint(e.touches[0]);
+        const last = gesture.points[gesture.points.length - 1];
+        if (Math.hypot(t.x - last.x, t.y - last.y) > 2.5) {
+          gesture.points.push({ x: t.x, y: t.y });
+          gesture.moved = true;
+          drawLasso(gesture.points);
+        }
+        return;
+      }
       if (gesture.mode !== 'tap') return;
       const t = touchPoint(e.touches[0]);
       const dx = t.x - gesture.lastX;
       const dy = t.y - gesture.lastY;
       gesture.lastX = t.x;
       gesture.lastY = t.y;
-      if (!gesture.moved && Math.hypot(t.x - gesture.startX, t.y - gesture.startY) > 10) gesture.moved = true;
+      if (!gesture.moved && Math.hypot(t.x - gesture.startX, t.y - gesture.startY) > 10) {
+        gesture.moved = true;
+        clearLongPress(gesture);
+      }
       if (gesture.moved) {
         const g = Mobile.game;
         g.camera.x -= dx / g.camera.zoom;
@@ -9424,13 +9815,34 @@ WG.INCOME_TICK = 0.5;
         return;
       }
       const g = gesture;
+      clearLongPress(g);
+      if (g && g.mode === 'lasso') {
+        gesture = null;
+        hideLasso();
+        const gg = Mobile.game;
+        Mobile.lastTouchAction = performance.now();
+        if (gg && g.points && g.points.length >= 3) {
+          const world = g.points.map(p => gg.screenToWorld(p.x, p.y));
+          const count = gg.lassoSelect(world, false);
+          if (WG.UI) {
+            if (count > 0) WG.UI.toast('已框选 ' + count + ' 支部队', 'good');
+            else WG.UI.toast('框选范围内没有我方部队', 'warn');
+          }
+          refreshStatus();
+        }
+        return;
+      }
       gesture = null;
-      if (!g || g.moved) return;
+      if (!g || g.moved || g.longPressUsed) return;
       if (performance.now() - g.startTime > 600) return;
       tapAt(g.startX, g.startY);
     };
     canvas.addEventListener('touchend', endTouch, { passive: false });
-    canvas.addEventListener('touchcancel', () => { gesture = null; }, { passive: false });
+    canvas.addEventListener('touchcancel', () => {
+      if (gesture) { clearLongPress(gesture); hideLasso(); }
+      gesture = null;
+    }, { passive: false });
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
 
     // iOS 上偶发 touch 事件被 Safari 吞掉时的兜底：点击地图也能放置/确认天火
     canvas.addEventListener('click', e => {
@@ -9483,6 +9895,7 @@ WG.INCOME_TICK = 0.5;
 
   WG.Mobile = Mobile;
 })();
+
 
 </script>
 </body>
