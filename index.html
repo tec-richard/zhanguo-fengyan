@@ -1220,18 +1220,21 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
           <h3>经济</h3>
           <p><b>农田</b>产粮，<b>铜矿场</b>产铜（须建在铜矿脉上），<b>城池</b>与<b>村庄</b>也会提供赋税。占领中立村庄可持续获得资源与视野。</p>
           <h3>营造</h3>
-          <p>在右侧「营造」页选择建筑，左键放置，右键取消。建筑需建在已探索的平原或沙地上。<b>同一时间只能营造一座建筑</b>，且必须按阶梯解锁：兵营 → 铜矿场 / 箭塔 / 靶场 → 书院 / 马厩 → 火炮坊。民居提供人口上限，书院研究科技。</p>
+          <p>在右侧「营造」页选择建筑，左键放置，右键取消。建筑需建在已探索的平原或沙地上。<b>同一时间只能营造一座建筑</b>，且必须按阶梯解锁：兵营 → 铜矿场 / 箭塔 / 靶场 → 书院 / 马厩 / 器械坊 → 火炮坊。民居提供人口上限，书院研究科技。</p>
           <h3>练兵</h3>
-          <p>兵营出步兵、枪兵；靶场出弩兵；马厩出骑兵；火炮坊出红夷大炮。每座生产建筑可独立排队。</p>
+          <p>兵营出步兵、枪兵；靶场出弩兵；马厩出骑兵、弓骑兵；器械坊出战车、投石车；火炮坊出红夷大炮。每座生产建筑可独立排队。</p>
           <p><b>天火</b>：火炮坊建成后，点击顶栏「天火」，再左键选择地点，可呼叫十轮红夷天火齐射。冷却 120 秒。</p>
         </section>
         <section>
           <h3>兵种相克</h3>
           <ul class="counter-list">
-            <li><b>枪兵</b> 重克骑兵，骑兵冲锋在其面前会被刺穿。</li>
-            <li><b>骑兵</b> 机动迅捷，重克弩兵与火炮。</li>
+            <li><b>枪兵</b> 重克骑兵、弓骑兵与战车，结阵可挡冲锋。</li>
+            <li><b>骑兵</b> 机动迅捷，重克弩兵、弓骑兵、火炮与投石车。</li>
+            <li><b>弓骑兵</b> 且行且射，风筝步兵与弩兵；怕枪兵和轻骑。</li>
+            <li><b>战车</b> 冲阵破步兵，车右长戈可撕裂弩阵；怕枪兵。</li>
             <li><b>弩兵</b> 远程输出，克制步兵；惧怕近身。</li>
             <li><b>步兵</b> 廉价耐战，适合结阵推进。</li>
+            <li><b>投石车</b> 超远程攻城，范围杀伤；有最小射程，近身极弱。</li>
             <li><b>红夷大炮</b> 超远射程与范围伤害，攻坚破城，但缓慢且近身脆弱。</li>
           </ul>
           <h3>操作</h3>
@@ -1241,6 +1244,9 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
             <div><kbd>A</kbd><span>攻击移动</span></div>
             <div><kbd>S</kbd><span>停止</span></div>
             <div><kbd>H</kbd><span>坚守原地</span></div>
+            <div><kbd>U</kbd><span>训练弓骑兵</span></div>
+            <div><kbd>Z</kbd><span>训练战车</span></div>
+            <div><kbd>X</kbd><span>训练投石车</span></div>
             <div><kbd>P</kbd><span>暂停</span></div>
             <div><kbd>方向键</kbd><span>移动视角</span></div>
             <div><kbd>滚轮</kbd><span>缩放视野</span></div>
@@ -1253,7 +1259,8 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
         <section class="help-tips">
           <h3>军争要诀</h3>
           <p>· 山丘会提升远程单位射程，河流只能从桥梁通过，沙漠与森林会拖慢行军。</p>
-          <p>· 红夷大炮有最小射程，不要让它被敌人贴脸。</p>
+          <p>· 红夷大炮与投石车都有最小射程，不要被敌人贴脸。</p>
+          <p>· 战车冲锋可撕开步阵，但会被长枪兵克制；弓骑兵适合侧翼骚扰。</p>
           <p>· 箭塔与城池会自动射击靠近的敌人，可作为防线支点。</p>
           <p>· 摧毁敌方<b>城池</b>即可获胜；自己的城池被毁则败北。</p>
           <p>· 按 <kbd>F</kbd> 快速回到我方城池，按空格也可暂停。</p>
@@ -1449,7 +1456,7 @@ WG.UNIT_TYPES = {
     cost: { food: 70, copper: 45 }, hotkey: 'W', iconScale: 1,
     desc: '手持丈八长枪，结阵如林。对骑兵造成 2.4 倍伤害，是阻挡铁骑的中坚。',
     strong: '骑兵', weak: '弩兵',
-    bonuses: { cavalry: 2.4 }, buildingMul: 0.55
+    bonuses: { cavalry: 2.4, horseArcher: 1.8, chariot: 2.0 }, buildingMul: 0.55
   },
   cavalry: {
     id: 'cavalry', name: '骑兵', full: '轻装骑兵', role: '突击 · 机动',
@@ -1458,7 +1465,7 @@ WG.UNIT_TYPES = {
     cost: { food: 110, copper: 80 }, hotkey: 'E', iconScale: 1,
     desc: '来去如风的轻骑。机动迅捷，对弩兵与火炮造成 1.6 倍伤害，但畏惧长枪结阵。',
     strong: '弩兵 / 火炮', weak: '枪兵',
-    bonuses: { crossbow: 1.6, cannon: 1.6 }, buildingMul: 0.7, charge: 1.25
+    bonuses: { crossbow: 1.6, cannon: 1.6, horseArcher: 1.4, trebuchet: 1.8 }, buildingMul: 0.7, charge: 1.25
   },
   crossbow: {
     id: 'crossbow', name: '弩兵', full: '强弩兵', role: '远程 · 压制',
@@ -1467,7 +1474,7 @@ WG.UNIT_TYPES = {
     cost: { food: 85, copper: 60 }, hotkey: 'R', iconScale: 1,
     desc: '装备蹶张弩的远程步卒，箭矢可穿透轻甲。对步兵造成 1.3 倍伤害，惧怕近身突击。',
     strong: '步兵', weak: '骑兵',
-    bonuses: { infantry: 1.3 }, buildingMul: 0.5,
+    bonuses: { infantry: 1.3, chariot: 1.2 }, buildingMul: 0.5,
     projectile: 'bolt'
   },
   cannon: {
@@ -1479,9 +1486,38 @@ WG.UNIT_TYPES = {
     strong: '建筑 / 密集阵型', weak: '骑兵',
     bonuses: { building: 2.5 }, buildingMul: 2.5, splash: 62,
     projectile: 'cannon', minRange: 90
+  },
+  horseArcher: {
+    id: 'horseArcher', name: '弓骑兵', full: '胡服弓骑', role: '远程 · 游击',
+    hp: 115, armor: 1, damage: 15, range: 185, cooldown: 1.7, speed: 128,
+    vision: 315, radius: 11, pop: 2, buildTime: 15,
+    cost: { food: 105, copper: 95 }, hotkey: 'U', iconScale: 1,
+    desc: '轻骑配角弓，且行且射。机动性极强，能风筝步兵与弩兵，但惧怕长枪结阵和轻骑缠斗。',
+    strong: '步兵 / 弩兵', weak: '枪兵 / 骑兵',
+    bonuses: { infantry: 1.35, crossbow: 1.2 }, buildingMul: 0.55,
+    projectile: 'bolt'
+  },
+  chariot: {
+    id: 'chariot', name: '战车', full: '驷马战车', role: '冲阵 · 破阵',
+    hp: 280, armor: 4, damage: 32, range: 34, cooldown: 1.5, speed: 96,
+    vision: 305, radius: 14, pop: 3, buildTime: 20,
+    cost: { food: 150, copper: 150 }, hotkey: 'Z', iconScale: 1,
+    desc: '四马驾辕，车右执戈。冲锋时撕开步兵与弩兵阵线，对建筑也有一定破坏力；长枪与弩矢是它的克星。',
+    strong: '步兵 / 弩兵', weak: '枪兵 / 骑兵',
+    bonuses: { infantry: 1.8, crossbow: 1.5 }, buildingMul: 1.25, charge: 1.3
+  },
+  trebuchet: {
+    id: 'trebuchet', name: '投石车', full: '配重投石车', role: '攻城 · 超远程',
+    hp: 210, armor: 1, damage: 80, range: 400, minRange: 110, cooldown: 5.5, speed: 25,
+    vision: 340, radius: 16, pop: 5, buildTime: 28,
+    cost: { food: 200, copper: 300 }, hotkey: 'X', iconScale: 1,
+    desc: '以配重抛射石弹，射程冠绝全军。对建筑造成三倍伤害，范围杀伤密集阵型；但装填缓慢，近身极弱。',
+    strong: '建筑 / 密集阵型', weak: '骑兵 / 近战',
+    bonuses: { building: 3.0 }, buildingMul: 3.0, splash: 78,
+    projectile: 'cannon', minRange: 110
   }
 };
-WG.UNIT_ORDER = ['infantry', 'spear', 'cavalry', 'crossbow', 'cannon'];
+WG.UNIT_ORDER = ['infantry', 'spear', 'cavalry', 'horseArcher', 'crossbow', 'chariot', 'cannon', 'trebuchet'];
 
 /* ------------------------------------------------------------
    建筑
@@ -1552,8 +1588,16 @@ WG.BUILDING_TYPES = {
     id: 'stable', name: '马厩', full: '养马马厩', role: '生产',
     hp: 950, radius: 34, vision: 180, buildTime: 32,
     cost: { food: 120, copper: 190 }, hotkey: 'V', tier: 3, requires: ['range'], maxCount: 2,
-    produces: ['cavalry'],
-    desc: '需先完成靶场。豢养良马，训练轻装骑兵。骑兵是撕开敌阵的利刃。',
+    produces: ['cavalry', 'horseArcher'],
+    desc: '需先完成靶场。豢养良马，训练轻装骑兵与胡服弓骑。骑兵是撕开敌阵的利刃。',
+    buildable: true
+  },
+  workshop: {
+    id: 'workshop', name: '器械坊', full: '攻械作坊', role: '生产',
+    hp: 1000, radius: 35, vision: 185, buildTime: 38,
+    cost: { food: 150, copper: 240 }, hotkey: 'C', tier: 3, requires: ['range'], maxCount: 2,
+    produces: ['chariot', 'trebuchet'],
+    desc: '需先完成靶场。木石与青铜在此变成战车与投石车。器械是攻坚破城的重器。',
     buildable: true
   },
   foundry: {
@@ -1565,7 +1609,7 @@ WG.BUILDING_TYPES = {
     buildable: true
   }
 };
-WG.BUILD_ORDER = ['house', 'farm', 'barracks', 'mine', 'tower', 'range', 'academy', 'stable', 'foundry'];
+WG.BUILD_ORDER = ['house', 'farm', 'barracks', 'mine', 'tower', 'range', 'academy', 'stable', 'workshop', 'foundry'];
 WG.BUILDING_TIERS = { 1: '一阶', 2: '二阶', 3: '三阶', 4: '四阶' };
 
 WG.TECH_TYPES = {
@@ -1592,9 +1636,13 @@ WG.TECH_TYPES = {
   fortify: {
     id: 'fortify', name: '城防加固', cost: { food: 140, copper: 160 },
     desc: '所有建筑生命 +30%', long: '版筑夯土，增设女墙。所有建筑最大生命值提升 30%。'
+  },
+  siege: {
+    id: 'siege', name: '攻城术', cost: { food: 200, copper: 260 },
+    desc: '投石车伤害 +25%，射程 +30', long: '校量配重，改良抛臂。投石车伤害提升 25%，射程增加 30。'
   }
 };
-WG.TECH_ORDER = ['iron', 'crossbowTech', 'powder', 'farms', 'horses', 'fortify'];
+WG.TECH_ORDER = ['iron', 'crossbowTech', 'powder', 'farms', 'horses', 'fortify', 'siege'];
 
 WG.DIFFICULTY = {
   easy: {
@@ -3335,7 +3383,7 @@ WG.INCOME_TICK = 0.5;
     }
   }
 
-  function drawCavalry(ctx, u, time) {
+  function drawCavalry(ctx, u, time, kind) {
     const gallop = u.moving ? Math.sin(u.walkPhase * 1.4) : 0;
     const bob = u.moving ? Math.abs(Math.sin(u.walkPhase * 1.4)) * 1.3 : 0;
     const thrust = u.attackAnim > 0 ? u.attackAnim * 6 : 0;
@@ -3420,22 +3468,56 @@ WG.INCOME_TICK = 0.5;
     ctx.beginPath();
     ctx.moveTo(.2, 0); ctx.lineTo(-3.2, -1.5); ctx.lineTo(-3, 1.8); ctx.closePath(); ctx.fill();
 
-    // 长矛
-    ctx.save();
-    ctx.translate(1, -4.5);
-    ctx.rotate(-.08);
-    ctx.strokeStyle = '#6f5132';
-    ctx.lineWidth = 1.7;
-    ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(39 + thrust, 0); ctx.stroke();
-    ctx.fillStyle = PAL.metalLight;
-    ctx.beginPath();
-    ctx.moveTo(38 + thrust, 0); ctx.lineTo(46 + thrust, -2); ctx.lineTo(49 + thrust, 0); ctx.lineTo(46 + thrust, 2);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle = u.color;
-    ctx.beginPath();
-    ctx.moveTo(36 + thrust, -3.2); ctx.lineTo(41 + thrust, 0); ctx.lineTo(36 + thrust, 3.2);
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
+    if (kind === 'horseArcher') {
+      // 角弓与箭
+      ctx.save();
+      ctx.translate(5, -3.4);
+      ctx.strokeStyle = '#6b4a2a';
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.arc(0, 0, 8.2, -Math.PI * .52, Math.PI * .52);
+      ctx.stroke();
+      ctx.strokeStyle = '#d8c9a5';
+      ctx.lineWidth = .7;
+      ctx.beginPath();
+      ctx.moveTo(0, -7.8);
+      ctx.lineTo(0, 7.8);
+      ctx.stroke();
+      ctx.strokeStyle = '#a78c5f';
+      ctx.lineWidth = .9;
+      ctx.beginPath();
+      ctx.moveTo(-4, 0);
+      ctx.lineTo(10 + thrust * .5, 0);
+      ctx.stroke();
+      ctx.fillStyle = '#d8c9a5';
+      ctx.beginPath();
+      ctx.moveTo(12 + thrust * .5, 0);
+      ctx.lineTo(8.5 + thrust * .5, -1.4);
+      ctx.lineTo(8.5 + thrust * .5, 1.4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      // 箭囊
+      ctx.fillStyle = PAL.leather;
+      ctx.beginPath(); ctx.ellipse(-7, 4.6, 2.4, 4.2, .3, 0, Math.PI * 2); ctx.fill();
+    } else {
+      // 长矛
+      ctx.save();
+      ctx.translate(1, -4.5);
+      ctx.rotate(-.08);
+      ctx.strokeStyle = '#6f5132';
+      ctx.lineWidth = 1.7;
+      ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(39 + thrust, 0); ctx.stroke();
+      ctx.fillStyle = PAL.metalLight;
+      ctx.beginPath();
+      ctx.moveTo(38 + thrust, 0); ctx.lineTo(46 + thrust, -2); ctx.lineTo(49 + thrust, 0); ctx.lineTo(46 + thrust, 2);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = u.color;
+      ctx.beginPath();
+      ctx.moveTo(36 + thrust, -3.2); ctx.lineTo(41 + thrust, 0); ctx.lineTo(36 + thrust, 3.2);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
     ctx.restore();
   }
 
@@ -3539,8 +3621,9 @@ WG.INCOME_TICK = 0.5;
     ctx.save();
     ctx.translate(u.x || 0, u.y || 0);
     ctx.scale(scale, scale);
-    drawShadow(ctx, u.type === 'cavalry' ? 16 : u.type === 'cannon' ? 16 : 7,
-      u.type === 'cavalry' ? 6 : u.type === 'cannon' ? 10 : 4.6, 2, 3);
+    const mounted = u.type === 'cavalry' || u.type === 'horseArcher' || u.type === 'chariot';
+    drawShadow(ctx, mounted ? 17 : u.type === 'cannon' || u.type === 'trebuchet' ? 18 : 7,
+      mounted ? 7 : u.type === 'cannon' || u.type === 'trebuchet' ? 10 : 4.6, 2, 3);
     ctx.save();
     ctx.rotate(u.facing || 0);
     // 极轻的深色轮廓，让士兵在草地和沙地上更清晰
@@ -3549,10 +3632,203 @@ WG.INCOME_TICK = 0.5;
     ctx.shadowOffsetY = .8;
     if (u.type === 'infantry' || u.type === 'spear') drawInfantry(ctx, u, time, u.type);
     else if (u.type === 'crossbow') drawCrossbow(ctx, u, time);
-    else if (u.type === 'cavalry') drawCavalry(ctx, u, time);
+    else if (u.type === 'cavalry' || u.type === 'horseArcher') drawCavalry(ctx, u, time, u.type);
+    else if (u.type === 'chariot') drawChariot(ctx, u, time);
     else if (u.type === 'cannon') drawCannon(ctx, u, time);
+    else if (u.type === 'trebuchet') drawTrebuchet(ctx, u, time);
     ctx.restore();
     ctx.restore();
+  }
+
+
+  function drawChariot(ctx, u, time) {
+    const gallop = u.moving ? Math.sin(u.walkPhase * 1.5) : 0;
+    const bob = u.moving ? Math.abs(Math.sin(u.walkPhase * 1.5)) * 1.1 : 0;
+    const thrust = u.attackAnim > 0 ? u.attackAnim * 7 : 0;
+    const horseC = u.horseTone || PAL.horse;
+    ctx.save();
+    ctx.translate(0, -bob);
+
+    // 两匹拉车马（远侧更暗）
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(19, side * 5.2);
+      ctx.scale(.78, .78);
+      ctx.globalAlpha = side < 0 ? .72 : 1;
+      // 腿
+      ctx.strokeStyle = side < 0 ? '#3c2b1b' : '#4d3824';
+      ctx.lineWidth = 2.5;
+      const legs = [
+        [-10, -5, -13 + gallop * 5, -10], [-10, 5, -13 - gallop * 5, 10],
+        [7, -5, 10 - gallop * 5, -10], [7, 5, 10 + gallop * 5, 10]
+      ];
+      for (const l of legs) {
+        ctx.beginPath(); ctx.moveTo(l[0], l[1]); ctx.lineTo(l[2], l[3]); ctx.stroke();
+      }
+      // 马尾
+      ctx.strokeStyle = '#3f2d1d'; ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(-13, 0); ctx.quadraticCurveTo(-21, gallop * 2, -23, 4); ctx.stroke();
+      // 身体
+      ctx.fillStyle = side < 0 ? '#6d4b31' : horseC;
+      ctx.beginPath(); ctx.ellipse(0, 0, 14, 6.8, 0, 0, Math.PI * 2); ctx.fill();
+      // 颈与头
+      ctx.beginPath();
+      ctx.moveTo(9, -4);
+      ctx.quadraticCurveTo(16, -8, 20, -4);
+      ctx.lineTo(23, -1);
+      ctx.quadraticCurveTo(17, 2, 13, 3);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(21, -2, 4.2, 2.6, -.15, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#312316';
+      ctx.beginPath(); ctx.ellipse(24.2, -2.5, 1.4, 1.1, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#e3d3ad';
+      ctx.beginPath(); ctx.arc(22.2, -3, .6, 0, Math.PI * 2); ctx.fill();
+      // 鬃毛
+      ctx.strokeStyle = '#4b3320'; ctx.lineWidth = 1.2;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath(); ctx.moveTo(12 + i * 1.8, -4.5); ctx.lineTo(10 + i * 1.8, -1.4); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // 车辕
+    ctx.strokeStyle = '#5e4328'; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(-2, 0); ctx.lineTo(21, -5.2); ctx.moveTo(-2, 0); ctx.lineTo(21, 5.2); ctx.stroke();
+
+    // 车轮
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(-9, side * 11);
+      ctx.fillStyle = '#3c2c1d';
+      ctx.beginPath(); ctx.arc(0, 0, 8.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#6b4d2f';
+      ctx.beginPath(); ctx.arc(0, 0, 6.1, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#b28d4f'; ctx.lineWidth = .8;
+      for (let i = 0; i < 6; i++) {
+        const a = i / 6 * Math.PI * 2 + (u.moving ? u.walkPhase * .8 : 0);
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * 5.5, Math.sin(a) * 5.5); ctx.stroke();
+      }
+      ctx.fillStyle = '#2e2114';
+      ctx.beginPath(); ctx.arc(0, 0, 1.5, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+
+    // 车厢
+    ctx.fillStyle = '#6b4a2b';
+    ctx.beginPath();
+    ctx.moveTo(-16, -7); ctx.lineTo(-1, -7); ctx.lineTo(2, 0); ctx.lineTo(-1, 7); ctx.lineTo(-16, 7);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#3d2a19'; ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = u.color;
+    ctx.fillRect(-14, -6.2, 11, 2.2);
+    ctx.fillRect(-14, 4, 11, 2.2);
+    ctx.strokeStyle = PAL.gold; ctx.lineWidth = .8;
+    ctx.strokeRect(-15, -6.5, 14, 13);
+
+    // 车右
+    ctx.fillStyle = '#574b39';
+    ctx.beginPath(); ctx.ellipse(-8, 0, 4.8, 4.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = u.color;
+    ctx.globalAlpha = .82;
+    ctx.beginPath(); ctx.ellipse(-9, 0, 3.8, 3.8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = PAL.skin;
+    ctx.beginPath(); ctx.arc(-4.6, 0, 2.8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#796a4e';
+    ctx.beginPath(); ctx.arc(-4.6, 0, 3.1, Math.PI * .7, Math.PI * 1.5); ctx.fill();
+    ctx.fillStyle = u.color;
+    ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(-10.5, -1.5); ctx.lineTo(-10.2, 1.7); ctx.closePath(); ctx.fill();
+
+    // 长戈
+    ctx.save();
+    ctx.translate(-7, -4.8);
+    ctx.rotate(-.08);
+    ctx.strokeStyle = '#6f5132'; ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.moveTo(-8, 0); ctx.lineTo(30 + thrust, 0); ctx.stroke();
+    ctx.fillStyle = PAL.metalLight;
+    ctx.beginPath();
+    ctx.moveTo(29 + thrust, 0); ctx.lineTo(37 + thrust, -2); ctx.lineTo(40 + thrust, 0);
+    ctx.lineTo(37 + thrust, 2); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = u.color;
+    ctx.beginPath(); ctx.moveTo(27 + thrust, -3); ctx.lineTo(32 + thrust, 0); ctx.lineTo(27 + thrust, 3); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.restore();
+  }
+
+  function drawTrebuchet(ctx, u, time) {
+    const throwT = u.attackAnim > 0 ? Math.sin(u.attackAnim * Math.PI) : 0;
+    const armA = -.35 - throwT * 1.3;
+    const wheelSpin = u.moving ? time * 4 : 0;
+
+    // 轮子
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(-5, side * 12);
+      ctx.fillStyle = '#3b2b1c';
+      ctx.beginPath(); ctx.arc(0, 0, 7.6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#684a2c';
+      ctx.beginPath(); ctx.arc(0, 0, 5.7, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#b08b4e'; ctx.lineWidth = .8;
+      for (let i = 0; i < 5; i++) {
+        const a = i / 5 * Math.PI * 2 + wheelSpin;
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * 5, Math.sin(a) * 5); ctx.stroke();
+      }
+      ctx.fillStyle = '#2d2014';
+      ctx.beginPath(); ctx.arc(0, 0, 1.4, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+
+    // 底座
+    ctx.strokeStyle = '#5b4027'; ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-22, 0); ctx.lineTo(17, 0); ctx.stroke();
+    ctx.strokeStyle = '#8a663c'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(-21, -1); ctx.lineTo(16, -1); ctx.stroke();
+
+    // A 形支架
+    ctx.strokeStyle = '#5c4128'; ctx.lineWidth = 3.2;
+    ctx.beginPath(); ctx.moveTo(-7, 0); ctx.lineTo(1, -19); ctx.lineTo(9, 0); ctx.stroke();
+    ctx.strokeStyle = '#7a5834'; ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(-6, -2); ctx.lineTo(1, -18); ctx.lineTo(8, -2); ctx.stroke();
+
+    // 抛臂
+    ctx.save();
+    ctx.translate(1, -17);
+    ctx.rotate(armA);
+    ctx.strokeStyle = '#6f4f2d'; ctx.lineWidth = 3.2;
+    ctx.beginPath(); ctx.moveTo(-24, 0); ctx.lineTo(31, 0); ctx.stroke();
+    ctx.strokeStyle = '#c09a5a'; ctx.lineWidth = .9;
+    ctx.beginPath(); ctx.moveTo(-23, -1.4); ctx.lineTo(29, -1.4); ctx.stroke();
+    // 配重箱
+    ctx.fillStyle = '#4f4a3d';
+    ctx.fillRect(-30, -7, 12, 14);
+    ctx.strokeStyle = '#2e2b23'; ctx.lineWidth = 1;
+    ctx.strokeRect(-30, -7, 12, 14);
+    ctx.fillStyle = '#877b62';
+    ctx.fillRect(-28, -5, 3, 10);
+    // 石弹与兜囊
+    ctx.strokeStyle = '#b6a17a'; ctx.lineWidth = .8;
+    ctx.beginPath(); ctx.moveTo(31, 0); ctx.lineTo(38, 5 + throwT * 9); ctx.stroke();
+    ctx.fillStyle = '#6d6658';
+    ctx.beginPath(); ctx.arc(39, 6 + throwT * 10, 4.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(220,210,190,.3)';
+    ctx.beginPath(); ctx.arc(37.8, 4.7 + throwT * 10, 1.4, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // 绞盘
+    ctx.fillStyle = '#4e3821';
+    ctx.fillRect(11, 2, 6, 9);
+    ctx.strokeStyle = '#a7814b'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(14, 8, 3.2, 0, Math.PI * 2); ctx.stroke();
+
+    // 工匠
+    ctx.fillStyle = '#5b4c37';
+    ctx.beginPath(); ctx.ellipse(-17, 5, 3.2, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = PAL.skin;
+    ctx.beginPath(); ctx.arc(-15.5, 4, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = u.color;
+    ctx.fillRect(-19.5, 2.5, 1.4, 3.2);
   }
 
   /* -------------------- buildings -------------------- */
@@ -3877,6 +4153,48 @@ WG.INCOME_TICK = 0.5;
     drawFlag(ctx, -40, -20, c, time, .9, 5);
   }
 
+  function drawWorkshop(ctx, b, time) {
+    const c = b.color;
+    drawShadow(ctx, 44, 25);
+    // 夯土场院
+    ctx.fillStyle = 'rgba(156,137,101,.28)';
+    ctx.beginPath(); ctx.ellipse(-2, 16, 46, 24, 0, 0, Math.PI * 2); ctx.fill();
+    // 木构工棚
+    ctx.fillStyle = '#6f5a3f';
+    ctx.fillRect(-36, -18, 62, 35);
+    ctx.strokeStyle = '#463521'; ctx.lineWidth = 1.2;
+    for (let x = -32; x <= 22; x += 9) {
+      ctx.beginPath(); ctx.moveTo(x, -18); ctx.lineTo(x, 16); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(36,27,17,.55)';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(-37, -18); ctx.lineTo(-37, 17); ctx.moveTo(-37, -18); ctx.lineTo(27, -18); ctx.stroke();
+    drawRoof(ctx, -4, -19, 70, 38, '#4c5342', { eave: 6 });
+    // 门洞与炉火
+    ctx.fillStyle = '#332619';
+    ctx.fillRect(-19, 3, 17, 15);
+    ctx.fillStyle = 'rgba(216,151,75,.35)';
+    ctx.beginPath(); ctx.arc(-11, 10, 4.4, 0, Math.PI * 2); ctx.fill();
+    // 吊臂/绞盘
+    ctx.strokeStyle = '#604427'; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(17, 15); ctx.lineTo(17, -29); ctx.lineTo(36, -20); ctx.stroke();
+    ctx.strokeStyle = '#a17b45'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(35, -20); ctx.lineTo(35, -7); ctx.stroke();
+    ctx.fillStyle = '#6c6556';
+    ctx.beginPath(); ctx.arc(35, -5, 3.8, 0, Math.PI * 2); ctx.fill();
+    // 石料
+    for (let i = 0; i < 4; i++) {
+      const x = 28 + (i % 2) * 6, y = 14 + Math.floor(i / 2) * 5;
+      ctx.fillStyle = i % 2 ? '#77705f' : '#8a816c';
+      ctx.beginPath(); ctx.roundRect(x, y, 6, 4, 1); ctx.fill();
+    }
+    // 车轮半成品
+    ctx.strokeStyle = '#704f2d'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(-31, 21, 6, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-31, 15); ctx.lineTo(-31, 27); ctx.moveTo(-37, 21); ctx.lineTo(-25, 21); ctx.stroke();
+    drawFlag(ctx, -41, -20, c, time, .9, 6);
+  }
+
   function drawFoundry(ctx, b, time) {
     const c = b.color;
     drawShadow(ctx, 44, 25);
@@ -4150,6 +4468,7 @@ WG.INCOME_TICK = 0.5;
       case 'barracks': drawBarracks(ctx, b, time); break;
       case 'range': drawRange(ctx, b, time); break;
       case 'stable': drawStable(ctx, b, time); break;
+      case 'workshop': drawWorkshop(ctx, b, time); break;
       case 'foundry': drawFoundry(ctx, b, time); break;
       case 'academy': drawAcademy(ctx, b, time); break;
       case 'farm': drawFarm(ctx, b, time); break;
@@ -4181,7 +4500,7 @@ WG.INCOME_TICK = 0.5;
     if (e.maxHp <= 0) return;
     const w = width || (e.kind === 'building' ? Math.min(60, e.radius * 1.7) : e.type === 'cannon' ? 32 : 22);
     const p = U.clamp(e.hp / e.maxHp, 0, 1);
-    const y = e.y - (e.kind === 'building' ? e.radius + 22 : (e.type === 'cavalry' || e.type === 'cannon' ? 28 : 20));
+    const y = e.y - (e.kind === 'building' ? e.radius + 22 : (e.type === 'cavalry' || e.type === 'horseArcher' || e.type === 'chariot' || e.type === 'cannon' || e.type === 'trebuchet' ? 28 : 20));
     ctx.save();
     ctx.fillStyle = 'rgba(8,10,8,.72)';
     ctx.fillRect(e.x - w / 2, y, w, 3.2);
@@ -4252,7 +4571,7 @@ WG.INCOME_TICK = 0.5;
       let sc;
       if (id === 'hq') sc = size / 160;
       else if (id === 'tower') sc = size / 92;
-      else if (id === 'farm' || id === 'stable' || id === 'foundry') sc = size / 108;
+      else if (id === 'farm' || id === 'stable' || id === 'foundry' || id === 'workshop') sc = size / 108;
       else if (id === 'house') sc = size / 90;
       else sc = size / 102;
       ctx.translate(0, size * .10);
@@ -4470,10 +4789,10 @@ WG.INCOME_TICK = 0.5;
     } else if (f === 'chu') {
       if (type === 'crossbow') { s.range += 20; s.cooldown *= .9; }
     } else if (f === 'yan') {
-      if (type === 'cavalry') s.speed *= 1.15;
+      if (type === 'cavalry' || type === 'horseArcher') s.speed *= 1.15;
       s.vision *= 1.12;
     } else if (f === 'zhao') {
-      if (type === 'cavalry') { s.damage *= 1.25; s.maxHp *= 1.10; }
+      if (type === 'cavalry' || type === 'horseArcher') { s.damage *= 1.25; s.maxHp *= 1.10; }
     } else if (f === 'wei') {
       if (type === 'infantry') s.maxHp *= 1.18;
       if (type === 'spear') s.armor += 2;
@@ -4483,10 +4802,11 @@ WG.INCOME_TICK = 0.5;
       }
     }
     if (techs) {
-      if (techs.iron && (type === 'infantry' || type === 'spear' || type === 'cavalry')) s.damage *= 1.2;
+      if (techs.iron && (type === 'infantry' || type === 'spear' || type === 'cavalry' || type === 'chariot')) s.damage *= 1.2;
       if (techs.crossbowTech && type === 'crossbow') { s.range += 30; s.cooldown *= .8; }
       if (techs.powder && type === 'cannon') { s.damage *= 1.3; s.range += 40; }
-      if (techs.horses && type === 'cavalry') { s.maxHp *= 1.2; s.speed *= 1.12; }
+      if (techs.horses && (type === 'cavalry' || type === 'horseArcher')) { s.maxHp *= 1.2; s.speed *= 1.12; }
+      if (techs.siege && type === 'trebuchet') { s.damage *= 1.25; s.range += 30; }
     }
     s.hp = base.hp;
     s.cost.food = Math.round(s.cost.food);
@@ -5035,7 +5355,8 @@ WG.INCOME_TICK = 0.5;
     needBuildingHint(type) {
       if (type === 'infantry' || type === 'spear') return '需要先营造「兵营」';
       if (type === 'crossbow') return '需要先营造「靶场」';
-      if (type === 'cavalry') return '需要先营造「马厩」';
+      if (type === 'cavalry' || type === 'horseArcher') return '需要先营造「马厩」';
+      if (type === 'chariot' || type === 'trebuchet') return '需要先营造「器械坊」';
       if (type === 'cannon') return '需要先营造「火炮坊」';
       return '缺少生产建筑';
     }
@@ -5077,7 +5398,7 @@ WG.INCOME_TICK = 0.5;
       if (techId === 'iron') {
         for (const u of this.unitList) {
           if (u.team !== team || u.dead) continue;
-          if (u.type === 'infantry' || u.type === 'spear' || u.type === 'cavalry') u.damage *= 1.2;
+          if (u.type === 'infantry' || u.type === 'spear' || u.type === 'cavalry' || u.type === 'chariot') u.damage *= 1.2;
         }
       }
       if (techId === 'crossbowTech') {
@@ -5092,10 +5413,18 @@ WG.INCOME_TICK = 0.5;
       }
       if (techId === 'horses') {
         for (const u of this.unitList) {
-          if (u.team === team && !u.dead && u.type === 'cavalry') {
+          if (u.team === team && !u.dead && (u.type === 'cavalry' || u.type === 'horseArcher')) {
             u.maxHp = Math.round(u.maxHp * 1.2);
             u.hp = Math.round(u.hp * 1.2);
             u.speed *= 1.12;
+          }
+        }
+      }
+      if (techId === 'siege') {
+        for (const u of this.unitList) {
+          if (u.team === team && !u.dead && u.type === 'trebuchet') {
+            u.damage *= 1.25;
+            u.range += 30;
           }
         }
       }
@@ -5767,7 +6096,7 @@ WG.INCOME_TICK = 0.5;
       const codeLetter = e.code && e.code.indexOf('Key') === 0 ? e.code.slice(3).toLowerCase() : '';
       this.keys[k] = true;
       if (e.code === 'Space') this.keys[' '] = true;
-      const buildKeys = { j: 'house', n: 'farm', b: 'barracks', t: 'mine', l: 'tower', g: 'range', k: 'academy', v: 'stable', y: 'foundry' };
+      const buildKeys = { j: 'house', n: 'farm', b: 'barracks', t: 'mine', l: 'tower', g: 'range', k: 'academy', v: 'stable', c: 'workshop', y: 'foundry' };
       if (e.altKey && buildKeys[codeLetter]) {
         // 建筑快捷键：Alt + 字母
         e.preventDefault();
@@ -5805,7 +6134,7 @@ WG.INCOME_TICK = 0.5;
         return;
       }
       if (!e.ctrlKey && !e.altKey && !e.metaKey) {
-        const trainMap = { q: 'infantry', w: 'spear', e: 'cavalry', r: 'crossbow', t: 'cannon' };
+        const trainMap = { q: 'infantry', w: 'spear', e: 'cavalry', r: 'crossbow', t: 'cannon', u: 'horseArcher', z: 'chariot', x: 'trebuchet' };
         if (trainMap[codeLetter]) {
           e.preventDefault();
           this.queueUnit(trainMap[codeLetter], 0);
@@ -6241,7 +6570,7 @@ WG.INCOME_TICK = 0.5;
       this.projectiles.push({
         kind: 'cannon', x: sx, y: sy, sx, sy, tx, ty,
         t: 0, dur: Math.max(.35, dist / 420), damage,
-        owner: u, team: u.team, arc: Math.min(90, 28 + dist * .16)
+        owner: u, team: u.team, radius: u.splash || 64, arc: Math.min(90, 28 + dist * .16)
       });
       this.sfx('cannon', u.x, u.y, 1);
       this.shake = Math.max(this.shake, .6);
@@ -6298,7 +6627,7 @@ WG.INCOME_TICK = 0.5;
     }
 
     explodeCannon(p) {
-      const radius = 64;
+      const radius = p.radius || 64;
       const direct = p.target && !p.target.dead && U.dist(p.tx, p.ty, p.target.x, p.target.y) < 40;
       const targets = [];
       for (const u of this.unitList) {
@@ -6334,7 +6663,7 @@ WG.INCOME_TICK = 0.5;
       let armor = target.armor || 0;
       if (armorPierce) armor = Math.max(0, armor - armorPierce);
       let dmg = Math.max(1, amount - armor * 1.8);
-      if (target.kind === 'building' && source && source.kind === 'unit' && source.type !== 'cannon') {
+      if (target.kind === 'building' && source && source.kind === 'unit' && source.type !== 'cannon' && source.type !== 'trebuchet') {
         dmg *= source.buildingMul || 1;
       }
       target.hp -= dmg;
@@ -7345,6 +7674,7 @@ WG.INCOME_TICK = 0.5;
       const stables = this.countBuilding('stable', true);
       const foundries = this.countBuilding('foundry', true);
       const academies = this.countBuilding('academy', true);
+      const workshops = this.countBuilding('workshop', true);
       const towers = this.countBuilding('tower', true);
 
       let want = null;
@@ -7358,6 +7688,7 @@ WG.INCOME_TICK = 0.5;
       // 三级：书院、马厩
       else if (academies < 1 && t > 52) want = 'academy';
       else if (stables < 1 && t > 60) want = 'stable';
+      else if (workshops < 1 && t > 105) want = 'workshop';
       else if (towers < 1 && t > 70) want = 'tower';
       // 四级：火炮坊
       else if (foundries < 1 && t > 155) want = 'foundry';
@@ -7444,7 +7775,7 @@ WG.INCOME_TICK = 0.5;
       if (this.countBuilding('academy', false) < 1) return;
       if (this.g.time < this.diff.techDelay) return;
       if (p.resources.food < 380 || p.resources.copper < 380) return;
-      const order = ['farms', 'iron', 'crossbowTech', 'horses', 'powder', 'fortify'];
+      const order = ['farms', 'iron', 'crossbowTech', 'horses', 'siege', 'powder', 'fortify'];
       for (const id of order) {
         if (!p.techs[id]) {
           if (this.g.research(id, this.team)) return;
@@ -7457,29 +7788,32 @@ WG.INCOME_TICK = 0.5;
       const p = g.players[this.team];
       const myUnits = this.aiUnits();
       if (g.availablePop(this.team) < 1) return;
-      const counts = { infantry: 0, spear: 0, cavalry: 0, crossbow: 0, cannon: 0 };
-      let queued = { infantry: 0, spear: 0, cavalry: 0, crossbow: 0, cannon: 0 };
+      const counts = { infantry: 0, spear: 0, cavalry: 0, horseArcher: 0, crossbow: 0, chariot: 0, cannon: 0, trebuchet: 0 };
+      let queued = { infantry: 0, spear: 0, cavalry: 0, horseArcher: 0, crossbow: 0, chariot: 0, cannon: 0, trebuchet: 0 };
       for (const u of myUnits) counts[u.type]++;
       for (const b of g.buildingList) {
         if (b.team !== this.team || b.dead) continue;
         for (const q of b.queue) queued[q.type]++;
       }
       const playerArmy = g.unitList.filter(u => u.team === 0 && !u.dead);
-      const enemyCav = playerArmy.filter(u => u.type === 'cavalry').length;
-      const enemyRanged = playerArmy.filter(u => u.type === 'crossbow' || u.type === 'cannon').length;
+      const enemyCav = playerArmy.filter(u => u.type === 'cavalry' || u.type === 'horseArcher' || u.type === 'chariot').length;
+      const enemyRanged = playerArmy.filter(u => u.type === 'crossbow' || u.type === 'horseArcher' || u.type === 'cannon' || u.type === 'trebuchet').length;
       const t = g.time;
       const desired = {
         infantry: 4 + Math.floor(t / 75),
         spear: 2 + Math.floor(t / 105) + Math.min(3, Math.floor(enemyCav / 2)),
         crossbow: 2 + Math.floor(t / 85),
         cavalry: 1 + Math.floor(t / 105) + Math.min(2, Math.floor(enemyRanged / 3)),
-        cannon: t > 175 ? (this.diff.id === 'hard' ? 2 : 1) : 0
+        horseArcher: t > 75 ? 1 + Math.floor(t / 140) : 0,
+        chariot: t > 110 ? 1 + Math.floor(t / 170) : 0,
+        cannon: t > 175 ? (this.diff.id === 'hard' ? 2 : 1) : 0,
+        trebuchet: t > 165 ? (this.diff.id === 'hard' ? 2 : 1) : 0
       };
       // 限制人口
       let totalQueued = Object.values(queued).reduce((a, b) => a + b, 0);
       if (totalQueued >= 7) return;
 
-      const options = ['infantry', 'spear', 'crossbow', 'cavalry', 'cannon'];
+      const options = ['infantry', 'spear', 'crossbow', 'cavalry', 'horseArcher', 'chariot', 'cannon', 'trebuchet'];
       // 优先补充缺口最大的兵种
       options.sort((a, b) => {
         const da = (desired[a] || 0) - (counts[a] + queued[a]) - (a === 'cannon' ? .4 : 0);
@@ -7492,7 +7826,7 @@ WG.INCOME_TICK = 0.5;
         const def = WG.UNIT_TYPES[type];
         if (!def) continue;
         if (counts[type] + queued[type] >= desired[type]) continue;
-        if (type === 'cannon' && p.resources.copper < 520) continue;
+        if ((type === 'cannon' || type === 'trebuchet') && p.resources.copper < 520) continue;
         if (g.availablePop(this.team) < def.pop) break;
         const stats = g.unitStatsFor(this.team, type);
         if (!g.canAfford(this.team, stats.cost)) continue;
@@ -8079,7 +8413,8 @@ WG.INCOME_TICK = 0.5;
     buildArmyList() {
       const list = $('army-list');
       const meta = [
-        ['infantry', '步'], ['spear', '枪'], ['cavalry', '骑'], ['crossbow', '弩'], ['cannon', '炮']
+        ['infantry', '步'], ['spear', '枪'], ['cavalry', '骑'], ['horseArcher', '弓'],
+        ['crossbow', '弩'], ['chariot', '车'], ['cannon', '炮'], ['trebuchet', '砲']
       ];
       list.innerHTML = meta.map(([type, glyph]) =>
         `<div class="army-row" data-type="${type}">
@@ -8144,7 +8479,9 @@ WG.INCOME_TICK = 0.5;
         if (lock) {
           lock.classList.toggle('hidden', available);
           if (!available) {
-            lock.textContent = type === 'cannon' ? '需火炮坊' : type === 'cavalry' ? '需马厩' :
+            lock.textContent = type === 'cannon' ? '需火炮坊' :
+              (type === 'chariot' || type === 'trebuchet') ? '需器械坊' :
+              (type === 'cavalry' || type === 'horseArcher') ? '需马厩' :
               type === 'crossbow' ? '需靶场' : '需兵营';
           }
         }
