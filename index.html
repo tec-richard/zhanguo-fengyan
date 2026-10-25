@@ -797,6 +797,15 @@ kbd{
 }
 .mini-btn:hover{background:rgba(200,162,82,.22)}
 
+.faction-card .fc-identity{display:flex;flex-direction:column;gap:2px;margin-top:6px;font-size:8px;line-height:1.35}
+.faction-card .fc-identity span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.faction-card .fc-adv{color:#9fbd8f}
+.faction-card .fc-uni{color:var(--gold)}
+.faction-card .fc-weak{color:#c9836d}
+
+#item-info .ok{color:#9fbd8f}
+#item-info .bad{color:#d47a61}
+
 /* ============================================================
    战国烽烟 · 手机触屏界面
    只在 body.touch 下启用，桌面端完全不受影响
@@ -1264,7 +1273,7 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
       <div class="help-columns">
         <section>
           <h3>立国</h3>
-          <p>选择七雄之一，各国有独特加成。开局可选择 1～6 个敌国，最多一打六；敌国会从其余六国中随机选择，并从各自的都城出兵。</p>
+          <p>选择七雄之一，各国有不同的优势、特色与短板。开局可选择 1～6 个敌国，最多一打六；敌国会从其余六国中随机选择，并从各自的都城出兵。</p>
           <h3>经济</h3>
           <p><b>农田</b>产粮，<b>铜矿场</b>产铜（须建在铜矿脉上），<b>城池</b>与<b>村庄</b>也会提供赋税。占领中立村庄可持续获得资源与视野。</p>
           <h3>营造</h3>
@@ -1306,6 +1315,8 @@ body.touch #sidebar.mobile-open{pointer-events:auto}
           <h3>军争要诀</h3>
           <p>· 山丘会提升远程单位射程，河流只能从桥梁通过，湖泊与东海不可通行，沙漠与森林会拖慢行军。</p>
           <p>· 弩兵和火炮会自动攻击自身射程内的敌人；步兵与骑兵的自动警戒半径为 250，略大于弩兵射程，被远程压制时会主动还击；主动下达攻击命令不受此限。</p>
+          <p>· 选中部队后会显示附近敌军数量与战力比；丘陵、森林会削弱骑兵，平原利于骑兵冲击，守在山地/丘陵的目标更耐打。</p>
+          <p>· 部队离开己方城池/村庄的粮道范围会逐渐失去士气并减员；占领村庄可以延伸粮道。新占村庄需要整合，整合期收入减半。</p>
           <p>· 红夷大炮有最小射程，不要让它被敌人贴脸。</p>
           <p>· 箭塔与城池会自动射击靠近的敌人，可作为防线支点。</p>
           <p>· 摧毁敌方<b>城池</b>即可获胜；自己的城池被毁则败北。</p>
@@ -1510,50 +1521,64 @@ WG.FACTIONS = {
   qin: {
     id: 'qin', name: '秦', full: '秦国', color: '#b8412f', dark: '#5a1712',
     motto: '赳赳老秦，共赴国难', trait: '耕战',
-    bonus: '步卒、枪兵攻击 +12%',
-    bonusLong: '老秦人尚首功。步兵与枪兵攻击力提升 12%，练兵消耗的粮草降低 10%。',
+    bonus: '练兵快、步卒强，但远征维护高',
+    bonusLong: '老秦人尚首功。练兵速度 +15%，步兵与枪兵攻击 +12%，练兵粮耗 -10%；但所有部队维护 +25%，远征越久越吃力。',
+    identity: { advantage: '耕战动员：练兵 +15%', unique: '锐士：步/枪攻击 +12%', weakness: '远征靡费：维护 +25%' },
+    mods: { trainSpeed: 1.15, foodCost: .9, upkeep: 1.25, infantryDamage: 1.12 },
     hero: '锐士'
   },
   chu: {
     id: 'chu', name: '楚', full: '楚国', color: '#8061a8', dark: '#33204d',
     motto: '楚虽三户，亡秦必楚', trait: '水泽',
-    bonus: '弩兵射程 +20，装填 +10%',
-    bonusLong: '荆楚多水泽，弩手惯于湿弦。弩兵射程增加 20，装填速度提升 10%。',
+    bonus: '粮产高、强弩远，但车骑疲弱',
+    bonusLong: '荆楚水泽纵横。农田产出 +20%，弩兵射程 +20、装填 +10%；但骑兵速度与攻击 -10%。',
+    identity: { advantage: '水泽粮仓：农田 +20%', unique: '申息强弩：射程 +20', weakness: '车骑疲弱：骑兵 -10%' },
+    mods: { farm: 1.2, crossbowRange: 20, crossbowCooldown: .9, cavalrySpeed: .9, cavalryDamage: .9 },
     hero: '申息之师'
   },
   qi: {
     id: 'qi', name: '齐', full: '齐国', color: '#3a8f79', dark: '#123b32',
     motto: '尊王攘夷，富甲天下', trait: '富庶',
-    bonus: '资源产出 +15%，建筑造价 -10%',
-    bonusLong: '临海煮盐，商贾云集。所有资源产出提升 15%，建筑造价降低 10%。',
+    bonus: '商业富庶、建造便宜，但步卒孱弱',
+    bonusLong: '临海煮盐，商贾云集。村庄收入 +50%，建筑造价 -10%；但步兵生命 -15%，前期正面作战偏弱。',
+    identity: { advantage: '通商之利：村庄 +50%', unique: '技击之士：建造 -10%', weakness: '步卒孱弱：步兵生命 -15%' },
+    mods: { buildingCost: .9, villageIncome: 1.5, infantryHp: .85 },
     hero: '技击之士'
   },
   yan: {
     id: 'yan', name: '燕', full: '燕国', color: '#447cb8', dark: '#152f4d',
     motto: '风萧萧兮易水寒', trait: '轻骑',
-    bonus: '骑兵速度 +15%，视野 +12%',
-    bonusLong: '燕北多良马。骑兵移动速度提升 15%，所有单位视野提升 12%。',
+    bonus: '骑兵迅捷、视野广，但苦寒少粮',
+    bonusLong: '燕北多良马。骑兵速度 +15%，所有单位视野 +12%；但农田产出 -15%，难以长期消耗。',
+    identity: { advantage: '辽东良马：骑兵速度 +15%', unique: '轻骑斥候：视野 +12%', weakness: '苦寒少粮：农田 -15%' },
+    mods: { cavalrySpeed: 1.15, vision: 1.12, farm: .85 },
     hero: '辽东突骑'
   },
   zhao: {
     id: 'zhao', name: '赵', full: '赵国', color: '#c18a35', dark: '#513510',
     motto: '胡服骑射，雄踞三晋', trait: '骑射',
-    bonus: '骑兵攻击 +25%，生命 +10%',
-    bonusLong: '赵武灵王胡服骑射。骑兵攻击力提升 25%，生命值提升 10%。',
+    bonus: '骑兵精锐，但粮秣压力大',
+    bonusLong: '赵武灵王胡服骑射。骑兵攻击 +20%、生命 +10%；但全军维护 +25%，骑兵越多粮草越吃紧。',
+    identity: { advantage: '胡服骑射：骑兵攻击 +20%', unique: '边骑：骑兵生命 +10%', weakness: '粮秣压力：维护 +25%' },
+    mods: { cavalryDamage: 1.2, cavalryHp: 1.1, upkeep: 1.25 },
     hero: '边骑'
   },
   wei: {
     id: 'wei', name: '魏', full: '魏国', color: '#b25f83', dark: '#4a1d30',
     motto: '魏武卒，衣三属之甲', trait: '武卒',
-    bonus: '步兵生命 +18%，枪兵护甲 +2',
-    bonusLong: '魏武卒冠绝天下。步兵生命值提升 18%，枪兵额外获得 2 点护甲。',
+    bonus: '步阵坚固，但行军迟缓',
+    bonusLong: '魏武卒冠绝天下。步兵生命 +18%，枪兵护甲 +2；但全军移动速度 -8%，机动与追击偏弱。',
+    identity: { advantage: '武卒之甲：步兵生命 +18%', unique: '魏武卒：枪兵护甲 +2', weakness: '行阵迟缓：速度 -8%' },
+    mods: { infantryHp: 1.18, spearArmor: 2, speed: .92 },
     hero: '武卒'
   },
   han: {
     id: 'han', name: '韩', full: '韩国', color: '#809a45', dark: '#354315',
     motto: '劲韩之弩，射六百步', trait: '劲弩',
-    bonus: '弩兵造价 -15%，破甲 +3',
-    bonusLong: '天下之强弓劲弩皆自韩出。弩兵造价降低 15%，攻击无视 3 点护甲。',
+    bonus: '强弩破甲，但近战疲弱',
+    bonusLong: '天下之强弓劲弩皆自韩出。弩兵造价 -15%、破甲 +3；但近战单位攻击 -12%，被贴身后很难翻盘。',
+    identity: { advantage: '劲弩：弩兵造价 -15%', unique: '宜阳弩士：破甲 +3', weakness: '近战疲弱：近战攻击 -12%' },
+    mods: { crossbowCost: .85, armorPierce: 3, meleeDamage: .88 },
     hero: '宜阳弩士'
   }
 };
@@ -1579,27 +1604,27 @@ WG.UNIT_TYPES = {
     hp: 150, armor: 3, damage: 15, range: 36, cooldown: 1.2, speed: 56,
     vision: 260, radius: 10, pop: 1, buildTime: 10,
     cost: { food: 70, copper: 45 }, hotkey: 'W', iconScale: 1,
-    desc: '手持丈八长枪，结阵如林。对骑兵造成 2.4 倍伤害，是阻挡铁骑的中坚。',
+    desc: '手持丈八长枪，结阵如林。对骑兵造成 35% 额外伤害，是阻挡铁骑的中坚。',
     strong: '骑兵', weak: '弩兵',
-    bonuses: { cavalry: 2.4 }, buildingMul: 0.55
+    bonuses: { cavalry: 1.25 }, buildingMul: 0.55
   },
   cavalry: {
     id: 'cavalry', name: '骑兵', full: '轻装骑兵', role: '突击 · 机动',
     hp: 200, armor: 3, damage: 23, range: 30, cooldown: 1.25, speed: 112,
     vision: 305, radius: 12, pop: 2, buildTime: 13,
     cost: { food: 110, copper: 80 }, hotkey: 'E', iconScale: 1,
-    desc: '来去如风的轻骑。机动迅捷，对弩兵与火炮造成 1.6 倍伤害，但畏惧长枪结阵。',
+    desc: '来去如风的轻骑。机动迅捷，对弩兵与火炮造成 20% 额外伤害，但畏惧长枪结阵。',
     strong: '弩兵 / 火炮', weak: '枪兵',
-    bonuses: { crossbow: 1.6, cannon: 1.6 }, buildingMul: 0.7, charge: 1.25
+    bonuses: { crossbow: 1.2, cannon: 1.15 }, buildingMul: 0.7, charge: 1.25
   },
   crossbow: {
     id: 'crossbow', name: '弩兵', full: '强弩兵', role: '远程 · 压制',
     hp: 90, armor: 1, damage: 19, range: 220, cooldown: 2.0, speed: 50,
     vision: 280, radius: 9, pop: 1, buildTime: 11,
     cost: { food: 85, copper: 60 }, hotkey: 'R', iconScale: 1,
-    desc: '装备蹶张弩的远程步卒，箭矢可穿透轻甲。对步兵造成 1.3 倍伤害，惧怕近身突击。',
+    desc: '装备蹶张弩的远程步卒，箭矢可穿透轻甲。对步兵造成 20% 额外伤害，惧怕近身突击。',
     strong: '步兵', weak: '骑兵',
-    bonuses: { infantry: 1.3 }, buildingMul: 0.5,
+    bonuses: { infantry: 1.2 }, buildingMul: 0.5,
     projectile: 'bolt'
   },
   cannon: {
@@ -1773,7 +1798,8 @@ WG.GAME = {
   fogUpdate: 0.11,
   maxUnitsSoft: 220,
   autoEngageRange: 220,
-  infantryAutoRange: 250
+  infantryAutoRange: 250,
+  supplyRange: 850
 };
 
 WG.INCOME_TICK = 0.5;
@@ -4824,22 +4850,31 @@ WG.INCOME_TICK = 0.5;
       armorPierce: 0
     });
     const f = factionId;
+    const mods = (WG.FACTIONS[f] && WG.FACTIONS[f].mods) || {};
     if (f === 'qin') {
       if (type === 'infantry' || type === 'spear') s.damage *= 1.12;
-      s.cost.food *= .9;
+      s.cost.food *= mods.foodCost || 1;
+      s.buildTime = Math.max(4, Math.round(base.buildTime / (mods.trainSpeed || 1)));
     } else if (f === 'chu') {
-      if (type === 'crossbow') { s.range += 20; s.cooldown *= .9; }
+      if (type === 'crossbow') { s.range += mods.crossbowRange || 0; s.cooldown *= mods.crossbowCooldown || 1; }
+      if (type === 'cavalry') { s.speed *= mods.cavalrySpeed || 1; s.damage *= mods.cavalryDamage || 1; }
+    } else if (f === 'qi') {
+      if (type === 'infantry') s.maxHp *= mods.infantryHp || 1;
     } else if (f === 'yan') {
-      if (type === 'cavalry') s.speed *= 1.15;
-      s.vision *= 1.12;
+      if (type === 'cavalry') s.speed *= mods.cavalrySpeed || 1;
+      s.vision *= mods.vision || 1;
     } else if (f === 'zhao') {
-      if (type === 'cavalry') { s.damage *= 1.25; s.maxHp *= 1.10; }
+      if (type === 'cavalry') { s.damage *= mods.cavalryDamage || 1; s.maxHp *= mods.cavalryHp || 1; }
     } else if (f === 'wei') {
-      if (type === 'infantry') s.maxHp *= 1.18;
-      if (type === 'spear') s.armor += 2;
+      if (type === 'infantry') s.maxHp *= mods.infantryHp || 1;
+      if (type === 'spear') s.armor += mods.spearArmor || 0;
+      s.speed *= mods.speed || 1;
     } else if (f === 'han') {
       if (type === 'crossbow') {
-        s.cost.food *= .85; s.cost.copper *= .85; s.armorPierce = 3;
+        s.cost.food *= mods.crossbowCost || 1; s.cost.copper *= mods.crossbowCost || 1;
+        s.armorPierce = mods.armorPierce || 0;
+      } else if (type === 'infantry' || type === 'spear' || type === 'cavalry') {
+        s.damage *= mods.meleeDamage || 1;
       }
     }
     if (techs) {
@@ -4931,6 +4966,7 @@ WG.INCOME_TICK = 0.5;
       this.skyFireQueue = [];
       this.lastClick = { time: 0, x: 0, y: 0 };
       this.keys = {};
+      this._combat = { kills: 0, losses: 0, active: false, last: 0 };
       this.stats = {
         player: { kills: 0, losses: 0, trained: 0, buildings: 0, villages: 0, gathered: 0 },
         enemy: { kills: 0, losses: 0, trained: 0, buildings: 0, villages: 0, gathered: 0 }
@@ -5158,6 +5194,7 @@ WG.INCOME_TICK = 0.5;
         pathTimer: 0, retargetTimer: this.rng.float(0, .4),
         moving: false, walkPhase: this.rng.float(0, 6), attackAnim: 0,
         hitFlash: 0, chargeReady: false, lastAttacker: null,
+        morale: 1, inSupply: true, outOfSupply: 0,
         leashX: spot.x, leashY: spot.y,
         dead: false, deadTime: 0, seed: this.rng.float(0, 100),
         horseTone: this.rng.chance(.5) ? '#8a6544' : this.rng.chance(.5) ? '#6f4f36' : '#967250'
@@ -5223,11 +5260,12 @@ WG.INCOME_TICK = 0.5;
     updateIncomeRates() {
       for (const team of Object.keys(this.players).map(Number)) {
         const p = this.players[team];
+        const mods = (WG.FACTIONS[p.faction] && WG.FACTIONS[p.faction].mods) || {};
         let food = 0, copper = 0;
         for (const b of this.buildingList) {
           if (b.team !== team || b.dead || b.constructing) continue;
           if (b.type === 'hq') { food += 2; copper += 2; }
-          else if (b.type === 'farm') food += 4 * (p.techs.farms ? 1.35 : 1);
+          else if (b.type === 'farm') food += 4 * (p.techs.farms ? 1.35 : 1) * (mods.farm || 1);
           else if (b.type === 'mine') {
             let rate = 6;
             for (const d of this.map.deposits) {
@@ -5237,15 +5275,33 @@ WG.INCOME_TICK = 0.5;
           }
         }
         for (const v of this.villageList) {
-          if (v.owner === team) { food += 2; copper += 2; }
+          if (v.owner === team) {
+            const k = (mods.villageIncome || 1) * (v.integration > 0 ? .5 : 1);
+            food += 2 * k; copper += 2 * k;
+          }
         }
-        if (p.faction === 'qi') { food *= 1.15; copper *= 1.15; }
         if (team !== 0) {
           const eco = this.difficulty.aiIncome * (this.aiEcoScale || 1);
           food *= eco; copper *= eco;
         }
-        p.income.food = food;
-        p.income.copper = copper;
+        // 军队与城池维护：扩张和暴兵会真实挤压经济
+        let upkeepFood = 0, upkeepCopper = 0;
+        for (const u of this.unitList) {
+          if (u.dead || u.team !== team) continue;
+          upkeepFood += u.pop * .045 * (mods.upkeep || 1);
+          upkeepCopper += u.pop * .018 * (mods.upkeep || 1);
+        }
+        for (const b of this.buildingList) {
+          if (b.dead || b.team !== team) continue;
+          upkeepFood += .012; upkeepCopper += .012;
+        }
+        const ownedVillages = this.villageList.filter(v => v.owner === team).length;
+        const governance = Math.max(0, ownedVillages - 3);
+        upkeepFood += governance * .3;
+        upkeepCopper += governance * .2;
+        p.upkeep = { food: upkeepFood, copper: upkeepCopper };
+        p.income.food = food - upkeepFood;
+        p.income.copper = copper - upkeepCopper;
       }
     }
 
@@ -5992,6 +6048,29 @@ WG.INCOME_TICK = 0.5;
       return { range, damage, cooldown, best };
     }
 
+    estimateNearbyEnemies(units, range) {
+      if (!units || !units.length) return null;
+      range = range || 760;
+      let cx = 0, cy = 0;
+      for (const u of units) { cx += u.x; cy += u.y; }
+      cx /= units.length; cy /= units.length;
+      const byType = {};
+      let count = 0;
+      const power = u => u.hp * .22 + (u.damage || 0) * (u.range > 60 ? 2.5 : 2) + (u.armor || 0) * 7;
+      let enemyPower = 0;
+      for (const e of this.unitList) {
+        if (e.dead || !this.areEnemies(0, e.team)) continue;
+        if (U.dist(cx, cy, e.x, e.y) > range) continue;
+        if (!this.isVisible(e.x, e.y)) continue;
+        count++;
+        byType[e.type] = (byType[e.type] || 0) + 1;
+        enemyPower += power(e);
+      }
+      let ownPower = 0;
+      for (const u of units) ownPower += power(u);
+      return { count, byType, ownPower, enemyPower, ratio: enemyPower > 0 ? ownPower / enemyPower : null };
+    }
+
     issueOrder(x, y, attackMove) {
       if (this.over) return;
       const ownBastion = this.buildingList.find(b => b.team === 0 && b.type === 'bastion' && !b.dead &&
@@ -6381,6 +6460,8 @@ WG.INCOME_TICK = 0.5;
       this.updateBuildings(dt);
       this.updateUnits(dt);
       this.updateVillages(dt);
+      this.updateSupply(dt);
+      this.updateCombatReport();
       this.updateProjectiles(dt);
       this.updateEffects(dt);
       this.updateSkyFire(dt);
@@ -6776,6 +6857,36 @@ WG.INCOME_TICK = 0.5;
       return best;
     }
 
+    flankMultiplier(u, target) {
+      if (!target || target.kind !== 'unit' || target.facing == null) return 1;
+      const toAttacker = Math.atan2(u.y - target.y, u.x - target.x);
+      const diff = Math.abs(((target.facing - toAttacker + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+      if (diff > 2.15) return 1.25;   // 背后
+      if (diff > 1.15) return 1.12;   // 侧翼
+      return 1;
+    }
+
+    terrainCombatMultiplier(u, target) {
+      const at = (x, y) => {
+        const c = Math.floor(x / this.map.tile), r = Math.floor(y / this.map.tile);
+        if (c < 0 || r < 0 || c >= this.map.cols || r >= this.map.rows) return T.ROCK;
+        return this.map.type[r * this.map.cols + c];
+      };
+      const ground = at(u.x, u.y);
+      const tground = at(target.x, target.y);
+      let k = 1;
+      if (target.kind === 'unit') {
+        if (tground === T.HILL || tground === T.ROCK) k *= .88;
+        else if (tground === T.FOREST) k *= .94;
+      }
+      if (u.type === 'cavalry') {
+        if (ground === T.HILL || ground === T.FOREST) k *= .8;
+        else if (ground === T.PLAIN) k *= 1.08;
+      }
+      if (u.range > 60 && ground === T.HILL) k *= 1.06;
+      return k;
+    }
+
     unitAttack(u, target) {
       const a = U.angleTo(u.x, u.y, target.x, target.y);
       u.facing = a;
@@ -6793,6 +6904,9 @@ WG.INCOME_TICK = 0.5;
         u.chargeReady = false;
         this.effects.push({ type: 'charge', x: target.x, y: target.y, ttl: .35, max: .35 });
       }
+      bonus *= (u.morale == null ? 1 : u.morale);
+      bonus *= this.flankMultiplier(u, target);
+      bonus *= this.terrainCombatMultiplier(u, target);
       if (u.projectile === 'cannon') {
         this.fireCannon(u, target, damage * bonus);
         return;
@@ -6952,6 +7066,8 @@ WG.INCOME_TICK = 0.5;
         if (source && source.team != null && source.team !== e.team) {
           const st = this.stats[source.team === 0 ? 'player' : 'enemy'];
           st.kills++;
+          if (source.team === 0 && e.team !== 0) { this._combat.kills++; this._combat.active = true; this._combat.last = this.time; }
+          if (e.team === 0 && source.team !== 0) { this._combat.losses++; this._combat.active = true; this._combat.last = this.time; }
           const ls = this.stats[e.team === 0 ? 'player' : 'enemy'];
           ls.losses++;
         }
@@ -6991,8 +7107,52 @@ WG.INCOME_TICK = 0.5;
     /* ------------------------------------------------------------
        村庄与效果
        ------------------------------------------------------------ */
+    updateCombatReport() {
+      if (!this._combat.active) return;
+      if (this.time - this._combat.last < 4) return;
+      const k = this._combat.kills, l = this._combat.losses;
+      this._combat.active = false;
+      this._combat.kills = 0;
+      this._combat.losses = 0;
+      if ((k || l) && WG.UI) WG.UI.toast(`交战结束：歼敌 ${k} · 损失 ${l}`, k >= l ? 'good' : 'warn');
+    }
+
+    updateSupply(dt) {
+      this._supplyTimer = (this._supplyTimer || 0) + dt;
+      if (this._supplyTimer < 1) return;
+      const step = this._supplyTimer;
+      this._supplyTimer = 0;
+      const range = WG.GAME.supplyRange || 850;
+      for (const u of this.unitList) {
+        if (u.dead) continue;
+        let best = Infinity;
+        for (const b of this.buildingList) {
+          if (b.dead || b.team !== u.team || b.type !== 'hq') continue;
+          best = Math.min(best, U.dist(u.x, u.y, b.x, b.y));
+        }
+        for (const v of this.villageList) {
+          if (v.owner !== u.team) continue;
+          best = Math.min(best, U.dist(u.x, u.y, v.x, v.y));
+        }
+        const okay = best <= range;
+        u.inSupply = okay;
+        if (okay) {
+          u.outOfSupply = Math.max(0, u.outOfSupply - step);
+          u.morale = Math.min(1, (u.morale == null ? 1 : u.morale) + step * .12);
+        } else {
+          u.outOfSupply += step;
+          if (u.outOfSupply > 7) {
+            u.morale = Math.max(.55, (u.morale == null ? 1 : u.morale) - step * .08);
+            u.hp -= u.maxHp * .006 * step;
+            if (u.hp <= 0) this.killEntity(u, null);
+          }
+        }
+      }
+    }
+
     updateVillages(dt) {
       for (const v of this.villageList) {
+        if (v.integration > 0) v.integration = Math.max(0, v.integration - dt);
         const counts = {};
         for (const u of this.unitList) {
           if (u.dead) continue;
@@ -7012,6 +7172,7 @@ WG.INCOME_TICK = 0.5;
             v.capture += dt * 10;
             if (v.capture >= 100) {
               v.owner = team;
+              v.integration = 60;
               v.color = WG.FACTIONS[this.players[team].faction].color;
               v.capture = 100;
               v.capturingTeam = -1;
@@ -8293,7 +8454,11 @@ WG.INCOME_TICK = 0.5;
           <div class="fc-seal">${f.name}</div>
           <div class="fc-name">${f.full}</div>
           <div class="fc-motto">${f.motto}</div>
-          <div class="fc-bonus">${f.bonus}</div>`;
+          <div class="fc-identity">
+            <span class="fc-adv">＋ ${f.identity.advantage}</span>
+            <span class="fc-uni">◆ ${f.identity.unique}</span>
+            <span class="fc-weak">－ ${f.identity.weakness}</span>
+          </div>`;
         card.addEventListener('click', () => this.chooseFaction(id));
         card.addEventListener('mouseenter', () => {
           $('faction-hint').textContent = f.bonusLong;
@@ -8906,13 +9071,20 @@ WG.INCOME_TICK = 0.5;
           <div class="info-title"><b>已选 ${units.length} 名将士</b><span>混编部队</span></div>
           <div class="info-desc">${parts.join('　')}。右键下令移动或攻击，按 A 键攻击移动。</div>
           <div class="info-stats"><span>总生命 <b>${Math.round(hpSum)}/${Math.round(hpMax)}</b></span>
-          <span>人口 <b>${units.reduce((s, u) => s + u.pop, 0)}</b></span></div>`;
+          <span>人口 <b>${units.reduce((s, u) => s + u.pop, 0)}</b></span>
+          <span>粮道 <b class="${units.some(u => !u.inSupply) ? 'bad' : 'ok'}">${units.some(u => !u.inSupply) ? '部分断绝' : '畅通'}</b></span></div>
+          ${this.battleIntelText(units)}`;
         return;
       }
       const type = units[0].type;
       const def = WG.UNIT_TYPES[type];
       const stats = units[0];
       const total = units.length;
+      const terrainNames = { 0: '平原', 1: '沙漠', 2: '丘陵', 3: '森林', 4: '山地', 5: '河流', 6: '桥梁' };
+      const c = Math.floor(stats.x / this.game.map.tile), r = Math.floor(stats.y / this.game.map.tile);
+      const ground = this.game.map.type[r * this.game.map.cols + c];
+      const supply = stats.inSupply ? '<b class="ok">畅通</b>' : '<b class="bad">断绝</b>';
+      const morale = Math.round((stats.morale == null ? 1 : stats.morale) * 100);
       info.innerHTML = `
         <div class="info-title"><b>${def.full}${total > 1 ? ' ×' + total : ''}</b><span>${def.role}</span></div>
         <div class="info-desc">${def.desc}</div>
@@ -8922,7 +9094,24 @@ WG.INCOME_TICK = 0.5;
           <span>射程 <b>${Math.round(stats.range)}</b></span>
           <span>护甲 <b>${stats.armor}</b></span>
         </div>
-        <div class="info-stats"><span>克 <b>${def.strong}</b></span><span>惧 <b>${def.weak}</b></span></div>`;
+        <div class="info-stats"><span>粮道 ${supply}</span><span>士气 <b>${morale}%</b></span><span>地形 <b>${terrainNames[ground] || '未知'}</b></span></div>
+        <div class="info-stats"><span>克 <b>${def.strong}</b></span><span>惧 <b>${def.weak}</b></span></div>
+        ${this.battleIntelText(units)}`;
+    },
+
+    battleIntelText(units) {
+      if (!this.game || !units || !units.length) return '';
+      const intel = this.game.estimateNearbyEnemies(units);
+      if (!intel || !intel.count) {
+        return '<div class="info-stats"><span>附近敌军 <b class="ok">未见</b></span></div>';
+      }
+      const parts = WG.UNIT_ORDER.filter(t => intel.byType[t])
+        .map(t => WG.UNIT_TYPES[t].name + '×' + intel.byType[t]).join(' ');
+      const ratio = intel.ratio;
+      const verdict = ratio == null ? '—' : ratio >= 1.35 ? '优势' : ratio >= .9 ? '势均' : '劣势';
+      const cls = ratio != null && ratio < .9 ? 'bad' : 'ok';
+      return `<div class="info-stats"><span>附近敌军 <b>${intel.count}</b> 人</span>
+        <span>${parts}</span><span>战力比 <b class="${cls}">${ratio == null ? '—' : ratio.toFixed(2)} · ${verdict}</b></span></div>`;
     },
 
     showBuildingInfo(b) {
@@ -8969,7 +9158,8 @@ WG.INCOME_TICK = 0.5;
       const info = $('item-info');
       if (e.kind === 'village') {
         const owner = e.owner === 2 ? '中立' : (e.owner === 0 ? '我方' : (this.game && this.game.players[e.owner] ? WG.FACTIONS[this.game.players[e.owner].faction].full : '敌方'));
-        info.innerHTML = `<div class="info-title"><b>${e.name}</b><span>${owner}</span></div>
+        const integration = e.integration > 0 ? ` · 整合中 ${Math.ceil(e.integration)}秒` : '';
+        info.innerHTML = `<div class="info-title"><b>${e.name}</b><span>${owner}${integration}</span></div>
           <div class="info-desc">一座中原村落。派遣部队靠近即可逐步占领，获得粮草、铜钱与视野。</div>
           <div class="info-stats"><span>产出 <b>粮+2 铜+2 /秒</b></span>${e.capture > 0 ? `<span>占领进度 <b>${Math.round(e.capture)}%</b></span>` : ''}</div>`;
       } else if (e.kind === 'unit') {
@@ -9065,8 +9255,9 @@ WG.INCOME_TICK = 0.5;
       const p = g.players[0];
       $('res-food').textContent = U.formatNumber(p.resources.food);
       $('res-copper').textContent = U.formatNumber(p.resources.copper);
-      $('inc-food').textContent = '+' + p.income.food.toFixed(1).replace('.0', '') + '/秒';
-      $('inc-copper').textContent = '+' + p.income.copper.toFixed(1).replace('.0', '') + '/秒';
+      const incText = v => (v >= 0 ? '+' : '') + v.toFixed(1).replace('.0', '') + '/秒';
+      $('inc-food').textContent = incText(p.income.food);
+      $('inc-copper').textContent = incText(p.income.copper);
       $('pop-used').textContent = p.popUsed;
       $('pop-cap').textContent = p.popCap;
       $('inc-pop').textContent = p.popCap >= 200 ? '人口上限' : '人口';
@@ -9836,6 +10027,7 @@ WG.INCOME_TICK = 0.5;
       for (const u of units) counts[u.type] = (counts[u.type] || 0) + 1;
       left = '<b>' + units.length + '</b> 名 · ' +
         WG.UNIT_ORDER.filter(t => counts[t]).map(t => WG.UNIT_TYPES[t].name + '×' + counts[t]).join(' ');
+      if (units.some(u => !u.inSupply)) left += ' · <b class="bad">粮道断绝</b>';
     } else if (g.selection.building) {
       left = WG.BUILDING_TYPES[g.selection.building.type].name + ' · ' +
         Math.round(g.selection.building.hp) + '/' + g.selection.building.maxHp;
